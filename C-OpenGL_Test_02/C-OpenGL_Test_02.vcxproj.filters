@@ -5,7 +5,7 @@
     <ClCompile Include="MyGLWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleTriangle.cpp">
+    <ClCompile Include="SimpleTextureBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <None Include="triangleVertexShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SimpleTriangle.h">
+    <ClInclude Include="SimpleTextureBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

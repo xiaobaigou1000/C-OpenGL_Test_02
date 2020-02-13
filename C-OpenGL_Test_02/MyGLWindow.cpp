@@ -5,7 +5,7 @@
 MyGLWindow::MyGLWindow(QWidget* parent)
     : QOpenGLWidget(parent)
 {
-
+    resize(800, 800);
 }
 
 MyGLWindow::~MyGLWindow()
