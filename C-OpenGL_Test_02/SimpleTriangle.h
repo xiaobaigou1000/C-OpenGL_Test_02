@@ -12,7 +12,7 @@ public:
     unsigned int VAO, VBO, EBO;
     QOpenGLShaderProgram shader;
     std::chrono::steady_clock sc;
-    std::chrono::time_point<std::chrono::steady_clock> lastFrameTime;
+    std::chrono::time_point<std::chrono::steady_clock> startTimePoint;
     void init();
     void draw();
 

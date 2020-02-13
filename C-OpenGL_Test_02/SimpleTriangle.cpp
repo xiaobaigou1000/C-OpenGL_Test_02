@@ -8,6 +8,7 @@ SimpleTriangle::SimpleTriangle()
 void SimpleTriangle::init()
 {
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
+    startTimePoint = sc.now();
 
     glCreateBuffers(1, &VBO);
     glNamedBufferData(VBO, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
@@ -32,7 +33,7 @@ void SimpleTriangle::draw()
     using namespace std::chrono_literals;
     glBindVertexArray(VAO);
     shader.bind();
-    auto colorBase = (sc.now() - lastFrameTime) % 10s;
+    auto colorBase = (sc.now() - startTimePoint) % 10s;
     float cur = 0.5f + 0.5f * sinf(std::chrono::duration_cast<std::chrono::seconds>(colorBase).count()/10.0f);
     glUniform4f(shader.uniformLocation("color"), cur, 0.0f, 1.0f-cur, cur);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);
