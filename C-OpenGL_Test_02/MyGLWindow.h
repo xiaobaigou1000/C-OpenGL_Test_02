@@ -21,6 +21,7 @@ private:
     unsigned int triangleVAO, triangleVBO, triangleEBO;
     QOpenGLShaderProgram triangleShader;
     void initTriangle();
+    void drawTriangle();
 
     constexpr static std::array<float, 9> triangleVertices = 
     {

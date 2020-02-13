@@ -21,10 +21,8 @@ void MyGLWindow::initializeGL()
 
 void MyGLWindow::paintGL()
 {
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glBindVertexArray(triangleVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    drawTriangle();
     update();
 }
 
@@ -46,4 +44,10 @@ void MyGLWindow::initTriangle()
     triangleShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "triangleFragmentShader.frag");
     triangleShader.link();
     triangleShader.bind();
+}
+
+void MyGLWindow::drawTriangle()
+{
+    glBindVertexArray(triangleVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
