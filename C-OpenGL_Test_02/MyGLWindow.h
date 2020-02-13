@@ -1,4 +1,5 @@
 #pragma once
+#include<qdebug.h>
 #include<qopenglfunctions_4_5_core.h>
 #include<qopenglwidget.h>
 #include"SimpleTriangle.h"
@@ -16,5 +17,5 @@ public:
     void resizeGL(int w, int h) override;
 
 private:
-    SimpleTriangle simpleTriangle;
+    SimpleTriangle myTriangle;
 };
