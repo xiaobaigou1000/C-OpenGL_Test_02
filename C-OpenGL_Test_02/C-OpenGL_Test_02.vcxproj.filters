@@ -5,6 +5,9 @@
     <ClCompile Include="MyGLWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SimpleTriangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -36,5 +39,10 @@
   <ItemGroup>
     <None Include="triangleFragmentShader.frag" />
     <None Include="triangleVertexShader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SimpleTriangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

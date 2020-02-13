@@ -82,6 +82,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyGLWindow.cpp" />
+    <ClCompile Include="SimpleTriangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MyGLWindow.h" />
@@ -89,6 +90,9 @@
   <ItemGroup>
     <None Include="triangleFragmentShader.frag" />
     <None Include="triangleVertexShader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SimpleTriangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
