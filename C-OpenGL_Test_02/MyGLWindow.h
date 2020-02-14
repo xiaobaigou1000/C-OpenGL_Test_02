@@ -1,4 +1,6 @@
 #pragma once
+#include<vector>
+#include<random>
 #include<qdebug.h>
 #include<qopenglfunctions_4_5_core.h>
 #include<qopenglwidget.h>
@@ -19,5 +21,5 @@ public:
 
 private:
     SimpleTextureBox myTriangle;
-    Simple3DBox myBox;
+    std::vector<Simple3DBox*> myBoxes;
 };
