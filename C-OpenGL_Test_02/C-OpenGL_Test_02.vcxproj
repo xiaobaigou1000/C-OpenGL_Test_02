@@ -84,16 +84,20 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyGLWindow.cpp" />
+    <ClCompile Include="Simple3DBox.cpp" />
     <ClCompile Include="SimpleTextureBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MyGLWindow.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="boxShader.frag" />
+    <None Include="boxShader.vert" />
     <None Include="triangleFragmentShader.frag" />
     <None Include="triangleVertexShader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Simple3DBox.h" />
     <ClInclude Include="SimpleTextureBox.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -8,6 +8,9 @@
     <ClCompile Include="SimpleTextureBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Simple3DBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -39,9 +42,14 @@
   <ItemGroup>
     <None Include="triangleFragmentShader.frag" />
     <None Include="triangleVertexShader.vert" />
+    <None Include="boxShader.frag" />
+    <None Include="boxShader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SimpleTextureBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Simple3DBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

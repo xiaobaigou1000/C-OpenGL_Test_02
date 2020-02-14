@@ -3,6 +3,7 @@
 #include<qopenglfunctions_4_5_core.h>
 #include<qopenglwidget.h>
 #include"SimpleTextureBox.h"
+#include"Simple3DBox.h"
 
 class MyGLWindow : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
@@ -18,4 +19,5 @@ public:
 
 private:
     SimpleTextureBox myTriangle;
+    Simple3DBox myBox;
 };
