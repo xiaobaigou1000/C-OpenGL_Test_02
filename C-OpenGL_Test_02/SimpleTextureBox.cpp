@@ -1,4 +1,7 @@
 #include "SimpleTextureBox.h"
+#include<glm.hpp>
+#include<gtc/matrix_transform.hpp>
+#include<gtc/type_ptr.hpp>
 
 void SimpleTextureBox::init()
 {
@@ -25,12 +28,17 @@ void SimpleTextureBox::init()
     shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "triangleFragmentShader.frag");
     shader.link();
 
+    shader.bind();
+    glm::mat4 rotateMat = glm::rotate(glm::mat4(1.0f), 1.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+    glm::mat4 translateMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.3f, 0.5f, 0.0f));
+    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 1.0f, 1.0f));
+    glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(rotateMat));
+
     tex=new QOpenGLTexture(QImage(QString("./images/texture_test.jpg")).mirrored());
 }
 
 void SimpleTextureBox::draw()
 {
-    using namespace std::chrono_literals;
     glBindVertexArray(VAO);
     shader.bind();
     glActiveTexture(GL_TEXTURE0);
