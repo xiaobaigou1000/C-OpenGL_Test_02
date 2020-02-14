@@ -1,6 +1,5 @@
 #include "Simple3DBox.h"
 
-
 void Simple3DBox::init()
 {
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
@@ -13,6 +12,8 @@ void Simple3DBox::init()
     using glm::value_ptr;
     using glm::perspective;
     using glm::radians;
+
+    lastTimePoint = sc.now();
 
     glCreateVertexArrays(1, &VAO);
     glCreateBuffers(1, &VBO);
@@ -40,8 +41,16 @@ void Simple3DBox::init()
 
 void Simple3DBox::draw()
 {
+
     glBindVertexArray(VAO);
     shader.bind();
+    auto currentTime = sc.now();
+
+    auto dur = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
+    lastTimePoint = currentTime;
+    model = glm::rotate(model, glm::radians(dur.count() * 30.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    glUniformMatrix4fv(shader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(projection * view * model));
+
     glActiveTexture(GL_TEXTURE0);
     tex->bind(GL_TEXTURE_2D);
     glUniform1i(shader.uniformLocation("tex"), 0);

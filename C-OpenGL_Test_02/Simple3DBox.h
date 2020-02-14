@@ -1,5 +1,6 @@
 #pragma once
 #include<array>
+#include<chrono>
 #include<qopenglfunctions_4_5_core.h>
 #include<qopenglshaderprogram.h>
 #include<qopengltexture.h>
@@ -22,6 +23,9 @@ private:
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 projection;
+
+    std::chrono::steady_clock sc;
+    std::chrono::steady_clock::time_point lastTimePoint;
 
     constexpr static std::array<float, 180> vertices =
     {
