@@ -1,7 +1,5 @@
 #include "MyGLWindow.h"
 
-#include<fstream>
-
 MyGLWindow::MyGLWindow(QWidget* parent)
     : QOpenGLWidget(parent)
 {
@@ -31,4 +29,5 @@ void MyGLWindow::paintGL()
 
 void MyGLWindow::resizeGL(int w, int h)
 {
+    myTriangle.resize(w, h);
 }

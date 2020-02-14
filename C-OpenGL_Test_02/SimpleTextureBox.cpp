@@ -15,9 +15,9 @@ void SimpleTextureBox::init()
     glCreateVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
@@ -33,8 +33,10 @@ void SimpleTextureBox::init()
     glm::mat4 translateMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.3f, 0.5f, 0.0f));
     glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 1.0f, 1.0f));
     glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(rotateMat));
+    orthogonalMat = glm::ortho(0.0f, 2.0f, 0.0f, 2.0f, -0.5f, 0.5f);
+    glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(orthogonalMat));
 
-    tex=new QOpenGLTexture(QImage(QString("./images/texture_test.jpg")).mirrored());
+    tex = new QOpenGLTexture(QImage(QString("./images/texture_test.jpg")).mirrored());
 }
 
 void SimpleTextureBox::draw()
@@ -45,4 +47,12 @@ void SimpleTextureBox::draw()
     tex->bind(GL_TEXTURE_2D);
     glUniform1i(shader.uniformLocation("tex"), 0);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+void SimpleTextureBox::resize(int w, int h)
+{
+    qInfo() << w << ' ' << h << '\n';
+    orthogonalMat = glm::ortho(-1.0f, 1.0f, -1.0f, -1.0f + (2.0f * (float(h)/float(w))), -0.5f, 0.5f);
+    shader.bind();
+    glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(orthogonalMat));
 }

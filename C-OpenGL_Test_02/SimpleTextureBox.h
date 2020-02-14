@@ -4,6 +4,7 @@
 #include<qopenglfunctions_4_5_core.h>
 #include<qopenglshaderprogram.h>
 #include<qopengltexture.h>
+#include<glm.hpp>
 
 class SimpleTextureBox :public QOpenGLFunctions_4_5_Core
 {
@@ -13,6 +14,9 @@ public:
     QOpenGLTexture* tex;
     void init();
     void draw();
+
+    glm::mat4 orthogonalMat;
+    void resize(int w, int h);
 
     constexpr static std::array<float, 32> vertices =
     {
