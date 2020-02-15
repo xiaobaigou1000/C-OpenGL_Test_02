@@ -22,4 +22,5 @@ public:
 private:
     SimpleTextureBox myTriangle;
     std::vector<Simple3DBox*> myBoxes;
+    QOpenGLShaderProgram boxShader;
 };
