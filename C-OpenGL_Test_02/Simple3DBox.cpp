@@ -49,7 +49,7 @@ void Simple3DBox::draw()
     auto currentTime = sc.now();
     auto dur = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
     lastTimePoint = currentTime;
-    rotateMat = glm::rotate(rotateMat, glm::radians(dur.count() * 30.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    rotateMat = glm::rotate(rotateMat, glm::radians(dur.count() * 30.0f), rotateDirection);
     glUniformMatrix4fv(shader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(projection * view * translateMat * rotateMat * scaleMat));
 
     glActiveTexture(GL_TEXTURE0);
@@ -78,4 +78,9 @@ void Simple3DBox::resetScaleMat(const glm::mat4& newScaleMat)
 void Simple3DBox::resetRotateMat(const glm::mat4& newRotateMat)
 {
     rotateMat = newRotateMat;
+}
+
+void Simple3DBox::resetRotateDirection(const glm::vec3& newDirection)
+{
+    rotateDirection = newDirection;
 }

@@ -23,7 +23,7 @@ void MyGLWindow::initializeGL()
 
     std::default_random_engine dre;
     std::uniform_real_distribution<float> translateDistribution(-3.0f, 3.0f);
-    std::uniform_real_distribution<float> angleDistribution(0.0f, 60.0f);
+    std::uniform_real_distribution<float> angleDistribution(-60.0f, 60.0f);
     std::uniform_real_distribution<float> axisDistribution(0.0f, 1.0f);
 
     auto rotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(angleDistribution(dre)), glm::vec3(axisDistribution(dre), axisDistribution(dre), axisDistribution(dre)));
@@ -31,12 +31,14 @@ void MyGLWindow::initializeGL()
 
     for (auto& i : myBoxes)
     {
-        rotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(angleDistribution(dre)), glm::vec3(axisDistribution(dre), axisDistribution(dre), axisDistribution(dre)));
+        glm::vec3 rotateDirection{ axisDistribution(dre), axisDistribution(dre), axisDistribution(dre) };
+        rotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(angleDistribution(dre)), rotateDirection);
         translateMat = glm::translate(glm::mat4(1.0f), glm::vec3(translateDistribution(dre), translateDistribution(dre), translateDistribution(dre)));
 
         i->init();
         i->resetRotateMat(rotateMat);
         i->resetTranslateMat(translateMat);
+        i->resetRotateDirection(rotateDirection);
     }
 
     int maxVertexAttribs;

@@ -18,6 +18,7 @@ public:
     void resetTranslateMat(const glm::mat4& newTranslateMat);
     void resetScaleMat(const glm::mat4& newScaleMat);
     void resetRotateMat(const glm::mat4& newRotateMat);
+    void resetRotateDirection(const glm::vec3& newDirection);
 private:
     QOpenGLShaderProgram shader;
     GLuint VAO, VBO;
@@ -28,6 +29,8 @@ private:
     glm::mat4 rotateMat;
     glm::mat4 view;
     glm::mat4 projection;
+
+    glm::vec3 rotateDirection = { 0.5f, 1.0f, 0.0f };
 
     std::chrono::steady_clock sc;
     std::chrono::steady_clock::time_point lastTimePoint;
