@@ -1,18 +1,18 @@
 #include "Simple3DBox.h"
 
+using glm::mat4;
+using glm::vec3;
+using glm::translate;
+using glm::rotate;
+using glm::scale;
+using glm::value_ptr;
+using glm::perspective;
+using glm::radians;
+
 void Simple3DBox::init(QOpenGLShaderProgram* newShader)
 {
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
     shader = newShader;
-
-    using glm::mat4;
-    using glm::vec3;
-    using glm::translate;
-    using glm::rotate;
-    using glm::scale;
-    using glm::value_ptr;
-    using glm::perspective;
-    using glm::radians;
 
     programBeginPoint = lastTimePoint = std::chrono::steady_clock::now();
 
@@ -47,8 +47,8 @@ void Simple3DBox::drawWithoutSettingShader()
     auto currentTime = std::chrono::steady_clock::now();
     auto dur = std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
     lastTimePoint = currentTime;
-    rotateMat = glm::rotate(rotateMat, glm::radians(dur.count() * 30.0f), rotateDirection);
-    glUniformMatrix4fv(shader->uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(projection * view * translateMat * rotateMat * scaleMat));
+    rotateMat = rotate(rotateMat, radians(dur.count() * 30.0f), rotateDirection);
+    glUniformMatrix4fv(shader->uniformLocation("MVP"), 1, GL_FALSE, value_ptr(projection * view * translateMat * rotateMat * scaleMat));
 
     glActiveTexture(GL_TEXTURE0);
     tex->bind(GL_TEXTURE_2D);
@@ -58,25 +58,25 @@ void Simple3DBox::drawWithoutSettingShader()
 
 void Simple3DBox::resize(int w, int h)
 {
-    projection = glm::perspective(glm::radians(50.0f), static_cast<float>(w) / static_cast<float>(h), 0.1f, 100.0f);
+    projection = perspective(radians(50.0f), static_cast<float>(w) / static_cast<float>(h), 0.1f, 100.0f);
 }
 
-void Simple3DBox::resetTranslateMat(const glm::mat4& newTranslateMat)
+void Simple3DBox::resetTranslateMat(const mat4& newTranslateMat)
 {
     translateMat = newTranslateMat;
 }
 
-void Simple3DBox::resetScaleMat(const glm::mat4& newScaleMat)
+void Simple3DBox::resetScaleMat(const mat4& newScaleMat)
 {
     scaleMat = newScaleMat;
 }
 
-void Simple3DBox::resetRotateMat(const glm::mat4& newRotateMat)
+void Simple3DBox::resetRotateMat(const mat4& newRotateMat)
 {
     rotateMat = newRotateMat;
 }
 
-void Simple3DBox::resetRotateDirection(const glm::vec3& newDirection)
+void Simple3DBox::resetRotateDirection(const vec3& newDirection)
 {
     rotateDirection = newDirection;
 }

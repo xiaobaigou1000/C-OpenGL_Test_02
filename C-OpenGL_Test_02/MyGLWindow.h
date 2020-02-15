@@ -20,7 +20,12 @@ public:
     void resizeGL(int w, int h) override;
 
 private:
-    SimpleTextureBox myTriangle;
+    SimpleTextureBox backgroundPicture;
+
+    void initBoxes();
+    void createBoxShader();
+    void drawBoxes();
+    void resizeBoxes(int w, int h);
     std::vector<Simple3DBox*> myBoxes;
     QOpenGLShaderProgram boxShader;
 };
