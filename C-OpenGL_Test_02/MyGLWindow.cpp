@@ -104,6 +104,11 @@ void MyGLWindow::focusInEvent(QFocusEvent* event)
 
 void MyGLWindow::initBoxes()
 {
+    using glm::mat4;
+    using glm::vec3;
+    using glm::rotate;
+    using glm::radians;
+
     for (int i = 0; i < 20; ++i)
     {
         myBoxes.push_back(new Simple3DBox);
@@ -114,13 +119,13 @@ void MyGLWindow::initBoxes()
     std::uniform_real_distribution<float> angleDistribution(-60.0f, 60.0f);
     std::uniform_real_distribution<float> axisDistribution(0.0f, 1.0f);
 
-    auto rotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(angleDistribution(dre)), glm::vec3(axisDistribution(dre), axisDistribution(dre), axisDistribution(dre)));
-    auto translateMat = glm::translate(glm::mat4(1.0f), glm::vec3(translateDistribution(dre), translateDistribution(dre), translateDistribution(dre)));
+    auto rotateMat = rotate(mat4(1.0f), radians(angleDistribution(dre)), vec3(axisDistribution(dre), axisDistribution(dre), axisDistribution(dre)));
+    auto translateMat = translate(mat4(1.0f), vec3(translateDistribution(dre), translateDistribution(dre), translateDistribution(dre)));
     for (auto& i : myBoxes)
     {
-        glm::vec3 rotateDirection{ axisDistribution(dre), axisDistribution(dre), axisDistribution(dre) };
-        rotateMat = glm::rotate(glm::mat4(1.0f), glm::radians(angleDistribution(dre)), rotateDirection);
-        translateMat = glm::translate(glm::mat4(1.0f), glm::vec3(translateDistribution(dre), translateDistribution(dre), translateDistribution(dre)));
+        vec3 rotateDirection{ axisDistribution(dre), axisDistribution(dre), axisDistribution(dre) };
+        rotateMat = rotate(mat4(1.0f), radians(angleDistribution(dre)), rotateDirection);
+        translateMat = translate(mat4(1.0f), vec3(translateDistribution(dre), translateDistribution(dre), translateDistribution(dre)));
 
         i->init(&boxShader);
         i->resetRotateMat(rotateMat);

@@ -9,13 +9,13 @@
 class SimpleTextureBox :public QOpenGLFunctions_4_5_Core
 {
 public:
-    unsigned int VAO, VBO, EBO;
+    unsigned int VAO = 0, VBO = 0, EBO = 0;
     QOpenGLShaderProgram shader;
-    QOpenGLTexture* tex;
+    QOpenGLTexture* tex = nullptr;
     void init();
     void draw();
 
-    glm::mat4 orthogonalMat;
+    glm::mat4 orthogonalMat{ 1.0f };
     void resize(int w, int h);
 
     constexpr static std::array<float, 32> vertices =

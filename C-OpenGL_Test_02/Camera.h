@@ -14,7 +14,7 @@ public:
 
     float FOV = 45.0f;
     float windowWidth, windowHeight;
-    glm::mat4 projectionMat;
+    glm::mat4 projectionMat{ 1.0f };
     void resizeCamera(int w, int h);
 
     float speed = 3.0f;
