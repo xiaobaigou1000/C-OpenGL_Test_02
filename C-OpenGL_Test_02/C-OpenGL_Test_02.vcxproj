@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyGLWindow.cpp" />
     <ClCompile Include="Simple3DBox.cpp" />
@@ -97,6 +98,7 @@
     <None Include="triangleVertexShader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Simple3DBox.h" />
     <ClInclude Include="SimpleTextureBox.h" />
   </ItemGroup>

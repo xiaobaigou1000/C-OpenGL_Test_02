@@ -1,9 +1,13 @@
 #include "MyGLWindow.h"
 
+#include<QKeyEvent>
+
 MyGLWindow::MyGLWindow(QWidget* parent)
     : QOpenGLWidget(parent)
 {
     resize(800, 800);
+    setCursor(Qt::BlankCursor);
+    setMouseTracking(true);
 }
 
 MyGLWindow::~MyGLWindow()
@@ -16,8 +20,8 @@ void MyGLWindow::initializeGL()
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     backgroundPicture.init();
-    initBoxes();
     createBoxShader();
+    initBoxes();
 
     int maxVertexAttribs;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
@@ -29,6 +33,9 @@ void MyGLWindow::paintGL()
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); !!Qt already cleaned last frame, no need for manually clean.
     glDisable(GL_DEPTH_TEST);
     backgroundPicture.draw();
+
+    boxCamera.caculateCamera();
+
     drawBoxes();
     update();
 }
@@ -36,7 +43,63 @@ void MyGLWindow::paintGL()
 void MyGLWindow::resizeGL(int w, int h)
 {
     backgroundPicture.resize(w, h);
-    resizeBoxes(w, h);
+    boxCamera.resizeCamera(w, h);
+}
+
+void MyGLWindow::mouseMoveEvent(QMouseEvent* event)
+{
+    if (!rect().contains(event->pos()))
+        return;
+    if (firstMouse)
+    {
+        QCursor myCursor = cursor();
+        myCursor.setPos(mapToGlobal({ width() / 2, height() / 2 }));
+        setCursor(myCursor);
+        firstMouse = false;
+        return;
+    }
+    if (secondMouse)
+    {
+        secondMouse = false;
+        return;
+    }
+    float xAxisMove = event->x() - width() / 2;
+    float yAxisMove = event->y() - height() / 2;
+    boxCamera.processMouseMovement(xAxisMove, yAxisMove);
+    QCursor myCursor = cursor();
+    myCursor.setPos(mapToGlobal({ width() / 2, height() / 2 }));
+    setCursor(myCursor);
+}
+
+void MyGLWindow::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_Escape)
+        close();
+    if (event->key() == Qt::Key_W)
+        boxCamera.setKeyW(true);
+    if (event->key() == Qt::Key_S)
+        boxCamera.setKeyS(true);
+    if (event->key() == Qt::Key_A)
+        boxCamera.setKeyA(true);
+    if (event->key() == Qt::Key_D)
+        boxCamera.setKeyD(true);
+}
+
+void MyGLWindow::keyReleaseEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_W)
+        boxCamera.setKeyW(false);
+    if (event->key() == Qt::Key_S)
+        boxCamera.setKeyS(false);
+    if (event->key() == Qt::Key_A)
+        boxCamera.setKeyA(false);
+    if (event->key() == Qt::Key_D)
+        boxCamera.setKeyD(false);
+}
+
+void MyGLWindow::focusInEvent(QFocusEvent* event)
+{
+    return;
 }
 
 void MyGLWindow::initBoxes()
@@ -63,6 +126,7 @@ void MyGLWindow::initBoxes()
         i->resetRotateMat(rotateMat);
         i->resetTranslateMat(translateMat);
         i->resetRotateDirection(rotateDirection);
+
     }
 }
 
@@ -78,16 +142,10 @@ void MyGLWindow::drawBoxes()
 {
     glEnable(GL_DEPTH_TEST);
     boxShader.bind();
-    for (auto& i : myBoxes)
-    {
-        i->drawWithoutSettingShader();
-    }
-}
+    glm::mat4 viewProjectionMat = boxCamera.viewProjectionMat();
 
-void MyGLWindow::resizeBoxes(int w, int h)
-{
     for (auto& i : myBoxes)
     {
-        i->resize(w, h);
+        i->drawWithoutSettingShader(viewProjectionMat);
     }
 }
