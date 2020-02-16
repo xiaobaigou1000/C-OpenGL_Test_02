@@ -16,12 +16,26 @@ MyGLWindow::~MyGLWindow()
 
 void MyGLWindow::initializeGL()
 {
+    using glm::mat4;
+    using glm::vec3;
+    using glm::translate;
+    using glm::scale;
+    using glm::value_ptr;
+
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     backgroundPicture.init();
     createBoxShader();
     initBoxes();
+
+    lightBoxShader.create();
+    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "boxShader.vert");
+    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "lightBox.frag");
+    lightBoxShader.link();
+    lightBox.init(&lightBoxShader);
+    lightBox.resetTranslateMat(translate(mat4(1.0f), vec3{ 0.2f }));
+    lightBox.resetScaleMat(scale(mat4(1.0f), lightPos));
 
     int maxVertexAttribs;
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
@@ -30,13 +44,16 @@ void MyGLWindow::initializeGL()
 
 void MyGLWindow::paintGL()
 {
+
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); !!Qt already cleaned last frame, no need for manually clean.
     glDisable(GL_DEPTH_TEST);
     backgroundPicture.draw();
 
     boxCamera.caculateCamera();
-
     drawBoxes();
+
+    lightBox.draw(boxCamera.viewProjectionMat());
+
     update();
 }
 
@@ -131,7 +148,6 @@ void MyGLWindow::initBoxes()
         i->resetRotateMat(rotateMat);
         i->resetTranslateMat(translateMat);
         i->resetRotateDirection(rotateDirection);
-
     }
 }
 
@@ -141,6 +157,10 @@ void MyGLWindow::createBoxShader()
     boxShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "boxShader.vert");
     boxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "boxShader.frag");
     boxShader.link();
+
+    boxShader.bind();
+    glUniform3f(boxShader.uniformLocation("objectColor"), 1.0f, 0.5f, 0.31f);
+    glUniform3f(boxShader.uniformLocation("lightColor"), 1.0f, 1.0f, 1.0f);
 }
 
 void MyGLWindow::drawBoxes()

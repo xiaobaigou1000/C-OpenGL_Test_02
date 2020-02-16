@@ -94,6 +94,7 @@
   <ItemGroup>
     <None Include="boxShader.frag" />
     <None Include="boxShader.vert" />
+    <None Include="lightBox.frag" />
     <None Include="triangleFragmentShader.frag" />
     <None Include="triangleVertexShader.vert" />
   </ItemGroup>
