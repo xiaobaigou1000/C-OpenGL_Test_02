@@ -11,9 +11,8 @@ uniform mat4 modelMat;
 
 void main()
 {
-    TexCoords = inTexCoords;
-    // Normal = mat3(transpose(inverse(modelMat))) * inNormal;
-    Normal=inNormal;
-    FragPos = vec3(modelMat * vec4(position, 1.0f));
     gl_Position = MVP * vec4(position, 1.0f);
+    TexCoords = inTexCoords;
+    Normal = mat3(transpose(inverse(modelMat))) * inNormal;
+    FragPos = (modelMat * vec4(position, 1.0f)).xyz;
 }

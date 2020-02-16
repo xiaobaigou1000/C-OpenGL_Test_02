@@ -47,7 +47,7 @@ void MyGLWindow::paintGL()
 
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); !!Qt already cleaned last frame, no need for manually clean.
     
-    //glDisable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
     //backgroundPicture.draw();
 
     boxCamera.caculateCamera();

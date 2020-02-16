@@ -28,7 +28,7 @@ void Simple3DBox::init(QOpenGLShaderProgram* newShader)
 
     translateMat = mat4(1.0f);
     scaleMat = mat4(1.0f);
-    rotateMat = rotate(mat4(1.0f), radians(55.0f), vec3(1.0f, 1.0f, 0.0f));
+    //rotateMat = rotate(mat4(1.0f), radians(55.0f), vec3(1.0f, 1.0f, 0.0f));
 
     tex = new QOpenGLTexture(QImage("./images/texture_test.jpg").mirrored());
 }
@@ -50,8 +50,8 @@ void Simple3DBox::drawWithoutSettingShader(const mat4& viewProjectionMat)
     auto currentTime = steady_clock::now();
     auto dur = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
     lastTimePoint = currentTime;
-    //rotateMat = rotate(rotateMat, radians(dur.count() * 30.0f), rotateDirection);
-    glUniformMatrix4fv(shader->uniformLocation("MVP"), 1, GL_FALSE, value_ptr(viewProjectionMat * translateMat * rotateMat * scaleMat));
+    rotateMat = rotate(rotateMat, radians(dur.count() * 30.0f), rotateDirection);
+    glUniformMatrix4fv(shader->uniformLocation("MVP"), 1, GL_FALSE, value_ptr(viewProjectionMat * getModelMat()));
 
     glActiveTexture(GL_TEXTURE0);
     tex->bind(GL_TEXTURE_2D);
