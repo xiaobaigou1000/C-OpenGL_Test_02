@@ -113,6 +113,7 @@ void MyGLWindow::paintGL()
     glUniform3fv(boxShader.uniformLocation("light.position"), 1, value_ptr(boxCamera.position));
     glUniform3fv(boxShader.uniformLocation("light.direction"), 1, value_ptr(boxCamera.front));
     glUniform1f(boxShader.uniformLocation("light.cutOff"), cosf(radians(12.5f)));
+    glUniform1f(boxShader.uniformLocation("light.outerCutOff"), cosf(radians(17.5f)));
     glUniform3fv(boxShader.uniformLocation("light.ambient"),1,value_ptr(ambientColor));
     glUniform3fv(boxShader.uniformLocation("light.diffuse"),1,value_ptr(diffuseColor));
     glUniform3f(boxShader.uniformLocation("light.specular"), 1.0f, 1.0f, 1.0f);
