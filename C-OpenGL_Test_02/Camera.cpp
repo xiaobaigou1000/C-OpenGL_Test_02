@@ -78,10 +78,10 @@ void Camera::processMouseMovement(float w, float h)
 {
     yaw += w / windowWidth * mouseSensitivity;
     pitch -= h / windowHeight * mouseSensitivity;
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
+    if (pitch > 1.57f)
+        pitch = 1.57f;
+    if (pitch < -1.57f)
+        pitch = -1.57f;
 
     front.y = sinf(pitch);
     front.x = cosf(pitch) * cosf(yaw);

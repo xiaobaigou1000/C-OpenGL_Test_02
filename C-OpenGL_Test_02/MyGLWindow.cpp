@@ -1,6 +1,7 @@
 #include "MyGLWindow.h"
 
 #include<QKeyEvent>
+#include<cmath>
 
 MyGLWindow::MyGLWindow(QWidget* parent)
     : QOpenGLWidget(parent)
@@ -62,18 +63,25 @@ void MyGLWindow::paintGL()
     using glm::radians;
     
     boxCamera.caculateCamera();
+    auto currentTime = std::chrono::steady_clock::now();
+    auto passedDuration = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
+    auto timeFromBeginPoint = duration_cast<duration<float, std::ratio<1>>>(currentTime - programBeginPoint);
 
     lightBoxShader.bind();
     lightBox.bind();
+
+    lightPos.y = 0.0f;
+    lightPos.x = 2.0f * sinf(timeFromBeginPoint.count());
+    lightPos.z = 2.0f * cosf(timeFromBeginPoint.count());
+
+    lightBox.resetTranslateMat(translate(mat4{ 1.0f }, lightPos));
     glUniformMatrix4fv(lightBoxShader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(boxCamera.viewProjectionMat()*lightBox.getModelMat()));
     lightBox.draw();
 
     myBox.bind();
     boxShader.bind();
-    auto currentTime = std::chrono::steady_clock::now();
-    auto passedDuration = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
+
     myBox.rotateMat = rotate(myBox.rotateMat, radians(20.0f * passedDuration.count()), vec3{ 1.0f,1.0f,0.0f });
-    lastTimePoint = currentTime;
 
     glUniformMatrix4fv(boxShader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(boxCamera.viewProjectionMat() * myBox.getModelMat()));
     glUniformMatrix4fv(boxShader.uniformLocation("modelMat"), 1, GL_FALSE, glm::value_ptr(myBox.getModelMat()));
@@ -84,6 +92,7 @@ void MyGLWindow::paintGL()
     glUniform3fv(boxShader.uniformLocation("viewPos"), 1, value_ptr(boxCamera.position));
     myBox.draw();
 
+    lastTimePoint = currentTime;
     update();
 }
 
