@@ -1,6 +1,7 @@
 #pragma once
 #include<vector>
 #include<random>
+#include<chrono>
 #include<qdebug.h>
 #include<qopenglfunctions_4_5_core.h>
 #include<qopenglwidget.h>
@@ -22,20 +23,17 @@ public:
     void mouseMoveEvent(QMouseEvent* event)override;
     void keyPressEvent(QKeyEvent* event)override;
     void keyReleaseEvent(QKeyEvent* event)override;
-    void focusInEvent(QFocusEvent* event)override;
 private:
     bool firstMouse = true, secondMouse = true;
 
-    SimpleTextureBox backgroundPicture;
-
-    void initBoxes();
-    void createBoxShader();
-    void drawBoxes();
-    std::vector<Simple3DBox*> myBoxes;
+    Simple3DBox myBox;
     QOpenGLShaderProgram boxShader;
     Camera boxCamera{ 800.0f,800.0f };
 
     glm::vec3 lightPos{ 1.2f, 1.0f, 2.0f };
     Simple3DBox lightBox;
     QOpenGLShaderProgram lightBoxShader;
+
+    std::chrono::steady_clock::time_point lastTimePoint;
+    std::chrono::steady_clock::time_point programBeginPoint;
 };

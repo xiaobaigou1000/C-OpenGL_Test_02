@@ -9,11 +9,9 @@ using glm::translate;
 using glm::rotate;
 using glm::radians;
 
-void Simple3DBox::init(QOpenGLShaderProgram* newShader)
+void Simple3DBox::init()
 {
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
-    shader = newShader;
-
     programBeginPoint = lastTimePoint = steady_clock::now();
 
     glCreateVertexArrays(1, &VAO);
@@ -28,35 +26,21 @@ void Simple3DBox::init(QOpenGLShaderProgram* newShader)
 
     translateMat = mat4(1.0f);
     scaleMat = mat4(1.0f);
-    //rotateMat = rotate(mat4(1.0f), radians(55.0f), vec3(1.0f, 1.0f, 0.0f));
+}
 
-    tex = new QOpenGLTexture(QImage("./images/texture_test.jpg").mirrored());
+void Simple3DBox::bind()
+{
+    glBindVertexArray(VAO);
+}
+
+void Simple3DBox::draw()
+{
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 glm::mat4 Simple3DBox::getModelMat()
 {
     return translateMat * rotateMat * scaleMat;
-}
-
-void Simple3DBox::draw(const mat4& viewProjectionMat)
-{
-    shader->bind();
-    drawWithoutSettingShader(viewProjectionMat);
-}
-
-void Simple3DBox::drawWithoutSettingShader(const mat4& viewProjectionMat)
-{
-    glBindVertexArray(VAO);
-    auto currentTime = steady_clock::now();
-    auto dur = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
-    lastTimePoint = currentTime;
-    rotateMat = rotate(rotateMat, radians(dur.count() * 30.0f), rotateDirection);
-    glUniformMatrix4fv(shader->uniformLocation("MVP"), 1, GL_FALSE, value_ptr(viewProjectionMat * getModelMat()));
-
-    glActiveTexture(GL_TEXTURE0);
-    tex->bind(GL_TEXTURE_2D);
-    glUniform1i(shader->uniformLocation("tex"), 0);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 void Simple3DBox::resetTranslateMat(const mat4& newTranslateMat)
@@ -77,9 +61,4 @@ void Simple3DBox::resetRotateMat(const mat4& newRotateMat)
 void Simple3DBox::resetRotateDirection(const vec3& newDirection)
 {
     rotateDirection = newDirection;
-}
-
-void Simple3DBox::resetShader(QOpenGLShaderProgram* newShader)
-{
-    shader = newShader;
 }
