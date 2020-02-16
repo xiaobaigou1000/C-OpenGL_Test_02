@@ -50,6 +50,7 @@ void MyGLWindow::initializeGL()
 
     boxTexture = new QOpenGLTexture(QImage("./images/container2.png").mirrored());
     boxSpecular = new QOpenGLTexture(QImage("./images/container2_specular.png").mirrored());
+    emissionMap = new QOpenGLTexture(QImage("./images/matrix.jpg").mirrored());
 }
 
 void MyGLWindow::paintGL()
@@ -96,6 +97,9 @@ void MyGLWindow::paintGL()
     glActiveTexture(GL_TEXTURE1);
     boxSpecular->bind(GL_TEXTURE_2D);
     glUniform1i(boxShader.uniformLocation("material.specular"), 1);
+    glActiveTexture(GL_TEXTURE2);
+    emissionMap->bind(GL_TEXTURE_2D);
+    glUniform1i(boxShader.uniformLocation("material.emission"), 2);
     glUniform1f(boxShader.uniformLocation("material.shininess"), 32.0f);
     glUniform3fv(boxShader.uniformLocation("light.position"), 1, value_ptr(lightPos));
     glUniform3fv(boxShader.uniformLocation("light.ambient"),1,value_ptr(ambientColor));
