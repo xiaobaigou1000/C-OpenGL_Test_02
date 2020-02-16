@@ -46,8 +46,10 @@ void MyGLWindow::initializeGL()
     boxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "boxShader.frag");
     boxShader.link();
     myBox.init();
-
     myBox.resetRotateMat(rotate(mat4{1.0f}, radians(55.0f), vec3{ 1.0f,1.0f,0.0f }));
+
+    boxTexture = new QOpenGLTexture(QImage("./images/container2.png").mirrored());
+    boxSpecular = new QOpenGLTexture(QImage("./images/container2_specular.png").mirrored());
 }
 
 void MyGLWindow::paintGL()
@@ -68,7 +70,7 @@ void MyGLWindow::paintGL()
     auto passedDuration = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
     auto timeFromBeginPoint = duration_cast<duration<float, std::ratio<1>>>(currentTime - programBeginPoint);
 
-    vec3 lightColor{ sin(timeFromBeginPoint.count() * 2.0f),sin(timeFromBeginPoint.count() * 0.7f),sin(timeFromBeginPoint.count() * 1.3f) };
+    vec3 lightColor{ 1.0f, 1.0f, 1.0f };
     vec3 diffuseColor = lightColor * vec3{ 0.5f };
     vec3 ambientColor = diffuseColor * vec3{ 0.2f };
 
@@ -88,9 +90,12 @@ void MyGLWindow::paintGL()
     glUniformMatrix4fv(boxShader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(boxCamera.viewProjectionMat() * myBox.getModelMat()));
     glUniformMatrix4fv(boxShader.uniformLocation("modelMat"), 1, GL_FALSE, glm::value_ptr(myBox.getModelMat()));
     glUniform3fv(boxShader.uniformLocation("viewPos"), 1, value_ptr(boxCamera.position));
-    glUniform3f(boxShader.uniformLocation("material.ambient"), 1.0f, 0.5f, 0.31f);
-    glUniform3f(boxShader.uniformLocation("material.diffuse"), 1.0f, 0.5f, 0.31f);
-    glUniform3f(boxShader.uniformLocation("material.specular"), 0.5f, 0.5f, 0.5f);
+    glActiveTexture(GL_TEXTURE0);
+    boxTexture->bind(GL_TEXTURE_2D);
+    glUniform1i(boxShader.uniformLocation("material.diffuse"), 0);
+    glActiveTexture(GL_TEXTURE1);
+    boxSpecular->bind(GL_TEXTURE_2D);
+    glUniform1i(boxShader.uniformLocation("material.specular"), 1);
     glUniform1f(boxShader.uniformLocation("material.shininess"), 32.0f);
     glUniform3fv(boxShader.uniformLocation("light.position"), 1, value_ptr(lightPos));
     glUniform3fv(boxShader.uniformLocation("light.ambient"),1,value_ptr(ambientColor));

@@ -29,6 +29,8 @@ private:
     Simple3DBox myBox;
     QOpenGLShaderProgram boxShader;
     Camera boxCamera{ 800.0f,800.0f };
+    QOpenGLTexture* boxTexture;
+    QOpenGLTexture* boxSpecular;
 
     glm::vec3 lightPos{ 1.2f, 1.0f, 2.0f };
     Simple3DBox lightBox;
