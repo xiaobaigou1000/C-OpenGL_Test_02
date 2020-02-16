@@ -72,7 +72,7 @@ void MyGLWindow::paintGL()
     boxShader.bind();
     auto currentTime = std::chrono::steady_clock::now();
     auto passedDuration = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
-    myBox.rotateMat = rotate(myBox.rotateMat, radians(10.0f * passedDuration.count()), vec3{ 1.0f,1.0f,0.0f });
+    myBox.rotateMat = rotate(myBox.rotateMat, radians(20.0f * passedDuration.count()), vec3{ 1.0f,1.0f,0.0f });
     lastTimePoint = currentTime;
 
     glUniformMatrix4fv(boxShader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(boxCamera.viewProjectionMat() * myBox.getModelMat()));
@@ -81,6 +81,7 @@ void MyGLWindow::paintGL()
     glUniform3f(boxShader.uniformLocation("objectColor"), 1.0f, 0.5f, 0.31f);
     glUniform3f(boxShader.uniformLocation("lightColor"), 1.0f, 1.0f, 1.0f);
     glUniform3f(boxShader.uniformLocation("lightPos"), lightPos.x, lightPos.y, lightPos.z);
+    glUniform3fv(boxShader.uniformLocation("viewPos"), 1, value_ptr(boxCamera.position));
     myBox.draw();
 
     update();
