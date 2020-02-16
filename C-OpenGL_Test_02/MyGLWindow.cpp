@@ -97,7 +97,7 @@ void MyGLWindow::paintGL()
     lightBox.resetTranslateMat(translate(mat4{ 1.0f }, lightPos));
     glUniform3fv(lightBoxShader.uniformLocation("lightColor"), 1, value_ptr(lightColor));
     glUniformMatrix4fv(lightBoxShader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(boxCamera.viewProjectionMat()*lightBox.getModelMat()));
-    lightBox.draw();
+    //lightBox.draw();
 
     myBox.bind();
     boxShader.bind();
@@ -110,7 +110,9 @@ void MyGLWindow::paintGL()
     boxSpecular->bind(GL_TEXTURE_2D);
     glUniform1i(boxShader.uniformLocation("material.specular"), 1);
     glUniform1f(boxShader.uniformLocation("material.shininess"), 32.0f);
-    glUniform3fv(boxShader.uniformLocation("light.position"), 1, value_ptr(lightPos));
+    glUniform3fv(boxShader.uniformLocation("light.position"), 1, value_ptr(boxCamera.position));
+    glUniform3fv(boxShader.uniformLocation("light.direction"), 1, value_ptr(boxCamera.front));
+    glUniform1f(boxShader.uniformLocation("light.cutOff"), cosf(radians(12.5f)));
     glUniform3fv(boxShader.uniformLocation("light.ambient"),1,value_ptr(ambientColor));
     glUniform3fv(boxShader.uniformLocation("light.diffuse"),1,value_ptr(diffuseColor));
     glUniform3f(boxShader.uniformLocation("light.specular"), 1.0f, 1.0f, 1.0f);
