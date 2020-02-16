@@ -31,7 +31,6 @@ private:
     Camera boxCamera{ 800.0f,800.0f };
     QOpenGLTexture* boxTexture;
     QOpenGLTexture* boxSpecular;
-    QOpenGLTexture* emissionMap;
 
     glm::vec3 lightPos{ 1.2f, 1.0f, 2.0f };
     Simple3DBox lightBox;
@@ -39,4 +38,8 @@ private:
 
     std::chrono::steady_clock::time_point lastTimePoint;
     std::chrono::steady_clock::time_point programBeginPoint;
+
+    std::vector<glm::mat4> translateMatrices;
+    std::vector<glm::mat4> rotateMatrices;
+    std::vector<glm::vec3> rotateAxis;
 };

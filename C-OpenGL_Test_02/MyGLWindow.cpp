@@ -50,7 +50,20 @@ void MyGLWindow::initializeGL()
 
     boxTexture = new QOpenGLTexture(QImage("./images/container2.png").mirrored());
     boxSpecular = new QOpenGLTexture(QImage("./images/container2_specular.png").mirrored());
-    emissionMap = new QOpenGLTexture(QImage("./images/matrix.jpg").mirrored());
+
+    std::default_random_engine dre;
+    std::uniform_real_distribution<float> positionDistribution(0.0f, 6.0f);
+    std::uniform_real_distribution<float> axisDist(0.0f, 1.0f);
+    std::uniform_real_distribution<float> angleDist(0.0f, 60.0f);
+
+    for (int i = 0; i < 10; ++i)
+    {
+        vec3 boxPos{ positionDistribution(dre),positionDistribution(dre),positionDistribution(dre) };
+        vec3 boxRotateAxis{ axisDist(dre),axisDist(dre),axisDist(dre) };
+        translateMatrices.push_back(translate(mat4{ 1.0f }, boxPos));
+        rotateAxis.push_back(boxRotateAxis);
+        rotateMatrices.push_back(rotate(mat4{ 1.0f }, angleDist(dre), boxRotateAxis));
+    }
 }
 
 void MyGLWindow::paintGL()
@@ -65,6 +78,7 @@ void MyGLWindow::paintGL()
     using glm::value_ptr;
     using glm::rotate;
     using glm::radians;
+    using glm::normalize;
     
     boxCamera.caculateCamera();
     auto currentTime = std::chrono::steady_clock::now();
@@ -72,8 +86,8 @@ void MyGLWindow::paintGL()
     auto timeFromBeginPoint = duration_cast<duration<float, std::ratio<1>>>(currentTime - programBeginPoint);
 
     vec3 lightColor{ 1.0f, 1.0f, 1.0f };
-    vec3 diffuseColor = lightColor * vec3{ 0.5f };
-    vec3 ambientColor = diffuseColor * vec3{ 0.2f };
+    vec3 diffuseColor = lightColor * vec3{ 0.7f };
+    vec3 ambientColor = diffuseColor * vec3{ 0.4f };
 
     lightBoxShader.bind();
     lightBox.bind();
@@ -83,13 +97,11 @@ void MyGLWindow::paintGL()
     lightBox.resetTranslateMat(translate(mat4{ 1.0f }, lightPos));
     glUniform3fv(lightBoxShader.uniformLocation("lightColor"), 1, value_ptr(lightColor));
     glUniformMatrix4fv(lightBoxShader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(boxCamera.viewProjectionMat()*lightBox.getModelMat()));
-    lightBox.draw();
+    //lightBox.draw();
 
     myBox.bind();
     boxShader.bind();
     myBox.rotateMat = rotate(myBox.rotateMat, radians(20.0f * passedDuration.count()), vec3{ 1.0f,1.0f,0.0f });
-    glUniformMatrix4fv(boxShader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(boxCamera.viewProjectionMat() * myBox.getModelMat()));
-    glUniformMatrix4fv(boxShader.uniformLocation("modelMat"), 1, GL_FALSE, glm::value_ptr(myBox.getModelMat()));
     glUniform3fv(boxShader.uniformLocation("viewPos"), 1, value_ptr(boxCamera.position));
     glActiveTexture(GL_TEXTURE0);
     boxTexture->bind(GL_TEXTURE_2D);
@@ -97,15 +109,20 @@ void MyGLWindow::paintGL()
     glActiveTexture(GL_TEXTURE1);
     boxSpecular->bind(GL_TEXTURE_2D);
     glUniform1i(boxShader.uniformLocation("material.specular"), 1);
-    glActiveTexture(GL_TEXTURE2);
-    emissionMap->bind(GL_TEXTURE_2D);
-    glUniform1i(boxShader.uniformLocation("material.emission"), 2);
     glUniform1f(boxShader.uniformLocation("material.shininess"), 32.0f);
-    glUniform3fv(boxShader.uniformLocation("light.position"), 1, value_ptr(lightPos));
+    glUniform3fv(boxShader.uniformLocation("light.direction"), 1, value_ptr(normalize(vec3{ -0.2f, -1.0f, -0.3f })));
     glUniform3fv(boxShader.uniformLocation("light.ambient"),1,value_ptr(ambientColor));
     glUniform3fv(boxShader.uniformLocation("light.diffuse"),1,value_ptr(diffuseColor));
     glUniform3f(boxShader.uniformLocation("light.specular"), 1.0f, 1.0f, 1.0f);
-    myBox.draw();
+
+    for (int i = 0; i < 10; ++i)
+    {
+        mat4 modelMat = translateMatrices[i] * rotateMatrices[i];
+        rotateMatrices[i] = rotate(rotateMatrices[i], radians(passedDuration.count() * 30.0f), rotateAxis[i]);
+        glUniformMatrix4fv(boxShader.uniformLocation("MVP"), 1, GL_FALSE, glm::value_ptr(boxCamera.viewProjectionMat() * modelMat));
+        glUniformMatrix4fv(boxShader.uniformLocation("modelMat"), 1, GL_FALSE, glm::value_ptr(modelMat));
+        myBox.draw();
+    }
 
     lastTimePoint = currentTime;
     update();
