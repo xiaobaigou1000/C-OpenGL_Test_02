@@ -84,6 +84,7 @@ void MyGLWindow::paintGL()
     auto currentTime = std::chrono::steady_clock::now();
     auto passedDuration = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
     auto timeFromBeginPoint = duration_cast<duration<float, std::ratio<1>>>(currentTime - programBeginPoint);
+    lastTimePoint = currentTime;
 
     vec3 lightColor{ 1.0f, 1.0f, 1.0f };
     vec3 diffuseColor = lightColor * vec3{ 0.7f };
@@ -130,7 +131,6 @@ void MyGLWindow::paintGL()
         myBox.draw();
     }
 
-    lastTimePoint = currentTime;
     update();
 }
 
