@@ -29,14 +29,13 @@ void SimpleTextureBox::init()
     shader.link();
 
     shader.bind();
-    glm::mat4 rotateMat = glm::rotate(glm::mat4(1.0f), 1.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-    glm::mat4 translateMat = glm::translate(glm::mat4(1.0f), glm::vec3(0.3f, 0.5f, 0.0f));
-    glm::mat4 scaleMat = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 1.0f, 1.0f));
-    glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(rotateMat));
-    orthogonalMat = glm::ortho(0.0f, 2.0f, 0.0f, 2.0f, -0.5f, 0.5f);
-    glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(orthogonalMat));
 
-    tex = new QOpenGLTexture(QImage(QString("./images/texture_test.jpg")).mirrored());
+    orthogonalMat = glm::ortho(0.0f, 1.0f, 0.0f, 1.0f, -0.5f, 0.5f);
+
+    tex = new QOpenGLTexture(QImage(QString("./images/background.jpg")).mirrored());
+    scaleMat = glm::scale(glm::mat4{ 1.0f }, glm::vec3{ 1.0f,(((float)tex->height() / (float)tex->width()) * (float(1080) / float(1920))),1.0f });
+    glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(orthogonalMat * scaleMat));
+
 }
 
 void SimpleTextureBox::draw()
@@ -51,7 +50,7 @@ void SimpleTextureBox::draw()
 
 void SimpleTextureBox::resize(int w, int h)
 {
-    orthogonalMat = glm::ortho(-1.0f, 1.0f, -1.0f, -1.0f + (2.0f * (float(h)/float(w))), -0.5f, 0.5f);
+    orthogonalMat = glm::ortho(0.0f, 1.0f, 0.0f, (((float)tex->height() / (float)tex->width()) * (float(h)/float(w))), -0.5f, 0.5f);
     shader.bind();
-    glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(orthogonalMat));
+    glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(orthogonalMat * scaleMat));
 }

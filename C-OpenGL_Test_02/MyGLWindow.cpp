@@ -32,12 +32,14 @@ void MyGLWindow::initializeGL()
 {
     programBeginPoint = lastTimePoint = std::chrono::steady_clock::now();
     boxCamera.caculateCamera();
-    std::default_random_engine dre;
+    std::default_random_engine dre( std::chrono::system_clock::now().time_since_epoch().count() );
 
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+
+    background.init();
 
     lightBoxShader.create();
     lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "boxShader.vert");
@@ -61,6 +63,7 @@ void MyGLWindow::initializeGL()
 
     boxTexture = new QOpenGLTexture(QImage("./images/container2.png").mirrored());
     boxSpecular = new QOpenGLTexture(QImage("./images/container2_specular.png").mirrored());
+    emissionMap = new QOpenGLTexture(QImage("./images/matrix.jpg").mirrored());
 
     std::normal_distribution<float> positionDistribution(3.0f, 3.0f);
     std::uniform_real_distribution<float> axisDist(0.0f, 1.0f);
@@ -78,6 +81,9 @@ void MyGLWindow::initializeGL()
 
 void MyGLWindow::paintGL()
 {
+    glDisable(GL_DEPTH_TEST);
+    background.draw();
+    glEnable(GL_DEPTH_TEST);
 
     boxCamera.caculateCamera();
     auto currentTime = std::chrono::steady_clock::now();
@@ -117,6 +123,9 @@ void MyGLWindow::paintGL()
     glActiveTexture(GL_TEXTURE1);
     boxSpecular->bind(GL_TEXTURE_2D);
     glUniform1i(boxShader.uniformLocation("material.specular"), 1);
+    glActiveTexture(GL_TEXTURE2);
+    emissionMap->bind(GL_TEXTURE_2D);
+    glUniform1i(boxShader.uniformLocation("material.emission"), 2);
     glUniform1f(boxShader.uniformLocation("material.shininess"), 32.0f);
     setLightVariableForBoxShader(ambientColor, diffuseColor);
 
@@ -134,6 +143,7 @@ void MyGLWindow::paintGL()
 
 void MyGLWindow::resizeGL(int w, int h)
 {
+    background.resize(w, h);
     boxCamera.resizeCamera(w, h);
 }
 

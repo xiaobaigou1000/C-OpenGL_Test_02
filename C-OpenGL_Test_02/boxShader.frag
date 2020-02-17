@@ -9,6 +9,7 @@ struct Material
 {
     sampler2D diffuse;
     sampler2D specular;
+    sampler2D emission;
     float shininess;
 };
 
@@ -123,6 +124,8 @@ void main()
         result += CalculatePointLight(pointlights[i], normal, viewDir);
     }
     result += CalculateSpotLight(spotlight, normal, viewDir);
+
+    result += vec3(0.5f, 0.5f, 0.5f) * vec3(texture(material.emission, TexCoords));
 
     Frag_Color = vec4(result, 1.0f);
 }

@@ -15,15 +15,16 @@ public:
     void init();
     void draw();
 
+    glm::mat4 scaleMat{ 1.0f };
     glm::mat4 orthogonalMat{ 1.0f };
     void resize(int w, int h);
 
     constexpr static std::array<float, 32> vertices =
     {
      1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-     1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
-    -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
+     1.0f,  0.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+     0.0f,  0.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+     0.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f
     };
 
     constexpr static std::array<unsigned int, 6> indices =

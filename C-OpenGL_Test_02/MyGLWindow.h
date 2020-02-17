@@ -28,11 +28,15 @@ private:
 
     bool firstMouse = true, secondMouse = true;
 
+    SimpleTextureBox background;
+
     Simple3DBox myBox;
     QOpenGLShaderProgram boxShader;
     Camera boxCamera{ 800.0f,800.0f };
     QOpenGLTexture* boxTexture;
     QOpenGLTexture* boxSpecular;
+    QOpenGLTexture* emissionMap;
+
 
     std::vector<glm::vec3> pointLightColor;
     std::vector<glm::vec3> lightPos;
