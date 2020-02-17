@@ -24,6 +24,8 @@ public:
     void keyPressEvent(QKeyEvent* event)override;
     void keyReleaseEvent(QKeyEvent* event)override;
 private:
+    void setLightVariableForBoxShader(glm::vec3 ambientColor, glm::vec3 diffuseColor);
+
     bool firstMouse = true, secondMouse = true;
 
     Simple3DBox myBox;
@@ -32,7 +34,8 @@ private:
     QOpenGLTexture* boxTexture;
     QOpenGLTexture* boxSpecular;
 
-    glm::vec3 lightPos{ 1.2f, 1.0f, 2.0f };
+    std::vector<glm::vec3> pointLightColor;
+    std::vector<glm::vec3> lightPos;
     Simple3DBox lightBox;
     QOpenGLShaderProgram lightBoxShader;
 
