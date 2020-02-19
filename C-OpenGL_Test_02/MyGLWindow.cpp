@@ -46,6 +46,23 @@ void MyGLWindow::initializeGL()
     modelShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "model.vert");
     modelShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "model.frag");
     modelShader.link();
+
+    //light box
+    lightBoxShader.create();
+    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "boxShader.vert");
+    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "lightBox.frag");
+    lightBoxShader.link();
+    lightBox.init();
+    lightBox.resetScaleMat(scale(mat4(1.0f), vec3{ 0.2f }));
+    std::normal_distribution<float> lightPosDistribution{ 0.0f, 2.0f };
+    for (int i = 0; i < 4; ++i)
+    {
+        pointLightColor.push_back({ 1.0f,1.0f,1.0f });
+    }
+    lightPos.push_back(vec3(0.0f, -1.7f, 0.4f));
+    lightPos.push_back(vec3(-0.7f, -0.8f, 0.0f));
+    lightPos.push_back(vec3(0.0f, 0.4f, 0.7f));
+    lightPos.push_back(vec3(-0.4f, 1.7f, 0.0f));
 }
 
 void MyGLWindow::paintGL()
@@ -57,8 +74,32 @@ void MyGLWindow::paintGL()
     auto timeFromBeginPoint = duration_cast<duration<float, std::ratio<1>>>(currentTime - programBeginPoint);
     lastTimePoint = currentTime;
 
-    modelShader.bind();
+    //light box
+    vec3 lightColor{ 1.0f, 1.0f, 1.0f };
+    lightColor.r = 0.5f + 0.5f * sin(timeFromBeginPoint.count());
+    lightColor.g = 0.5f + 0.5f * cos(timeFromBeginPoint.count());
+    lightColor.b = 1.0f - lightColor.r;
+    vec3 diffuseColor = lightColor * vec3{ 0.7f };
+    vec3 ambientColor = diffuseColor * vec3{ 0.3f };
 
+    lightBoxShader.bind();
+    lightBox.bind();
+    glUniform3fv(lightBoxShader.uniformLocation("lightColor"), 1, value_ptr(lightColor));
+    for (int i = 0; i < lightPos.size(); ++i)
+    {
+        pointLightColor[i].r = 0.5f + 0.5f * sin(0.5f + timeFromBeginPoint.count() + 0.5f * i);
+        pointLightColor[i].g = 0.5f + 0.5f * cos(0.5f + timeFromBeginPoint.count() + 0.5f * i);
+        pointLightColor[i].b = 1.0f - pointLightColor[i].r;
+        glUniform3fv(lightBoxShader.uniformLocation("lightColor"), 1, value_ptr(pointLightColor[i]));
+
+        mat4 lightModel = translate(mat4{ 1.0f }, lightPos[i]) * lightBox.scaleMat;
+        glUniformMatrix4fv(lightBoxShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat() * lightModel));
+        lightBox.draw();
+    }
+
+
+    //model
+    modelShader.bind();
     vec3 position;
     position.x = 5.0f * sin(timeFromBeginPoint.count());
     position.z = 5.0f * cos(timeFromBeginPoint.count());
@@ -66,11 +107,12 @@ void MyGLWindow::paintGL()
     mat4 scaleMat = scale(mat4{ 1.0f }, vec3(0.2f, 0.2f, 0.2f));
     mat4 modelMat = translateMat * scaleMat;
     
-
+    setLightVariableForShader(ambientColor, diffuseColor);
+    glUniform1f(modelShader.uniformLocation("material.shininess"), 32.0f);
     glUniformMatrix4fv(modelShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat()*modelMat));
-    //glUniformMatrix4fv(modelShader.uniformLocation("modelMat"), 1, GL_FALSE, value_ptr(modelMat));
+    glUniformMatrix4fv(modelShader.uniformLocation("modelMat"), 1, GL_FALSE, value_ptr(modelMat));
+    glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(boxCamera.position));
     testModel.draw(&modelShader);
-
 
     update();
 }
@@ -129,4 +171,42 @@ void MyGLWindow::keyReleaseEvent(QKeyEvent* event)
         boxCamera.setKeyA(false);
     if (event->key() == Qt::Key_D)
         boxCamera.setKeyD(false);
+}
+
+void MyGLWindow::setLightVariableForShader(vec3 ambientColor, vec3 diffuseColor)
+{
+    vec3 spotLightColor{ 1.0f, 1.0f, 1.0f };
+    vec3 spotDiffuseColor = spotLightColor * vec3{ 0.7f };
+    vec3 spotAmbientColor = spotDiffuseColor * vec3{ 0.3f };
+
+    glUniform3f(modelShader.uniformLocation("dirlight.direction"), -0.2f, -1.0f, -0.3f);
+    glUniform3fv(modelShader.uniformLocation("dirlight.ambient"), 1, value_ptr(ambientColor));
+    glUniform3fv(modelShader.uniformLocation("dirlight.diffuse"), 1, value_ptr(diffuseColor));
+    glUniform3f(modelShader.uniformLocation("dirlight.specular"), 1.0f, 1.0f, 1.0f);
+
+    for (int i = 0; i < 4; ++i)
+    {
+        vec3 pointLightDiffuseColor = pointLightColor[i] * vec3{ 0.7f };
+        vec3 pointLightAmbientColor = pointLightDiffuseColor * vec3{ 0.1f };
+
+        QString lightName = QString::fromStdString("pointlights[" + std::to_string(i) + "].");
+        glUniform3fv(modelShader.uniformLocation(lightName + "position"), 1, value_ptr(lightPos[i]));
+        glUniform1f(modelShader.uniformLocation(lightName + "constant"), 1.0f);
+        glUniform1f(modelShader.uniformLocation(lightName + "linear"), 0.09f);
+        glUniform1f(modelShader.uniformLocation(lightName + "quadratic"), 0.032f);
+        glUniform3fv(modelShader.uniformLocation(lightName + "ambient"), 1, value_ptr(pointLightAmbientColor));
+        glUniform3fv(modelShader.uniformLocation(lightName + "diffuse"), 1, value_ptr(pointLightDiffuseColor));
+        glUniform3f(modelShader.uniformLocation(lightName + "specular"), 1.0f, 1.0f, 1.0f);
+    }
+
+    glUniform3fv(modelShader.uniformLocation("spotlight.position"), 1, value_ptr(boxCamera.position));
+    glUniform3fv(modelShader.uniformLocation("spotlight.direction"), 1, value_ptr(boxCamera.front));
+    glUniform1f(modelShader.uniformLocation("spotlight.cutOff"), cosf(radians(12.5f)));
+    glUniform1f(modelShader.uniformLocation("spotlight.outerCutOff"), cosf(radians(17.5f)));
+    glUniform3fv(modelShader.uniformLocation("spotlight.ambient"), 1, value_ptr(spotAmbientColor));
+    glUniform3fv(modelShader.uniformLocation("spotlight.diffuse"), 1, value_ptr(spotDiffuseColor));
+    glUniform3f(modelShader.uniformLocation("spotlight.specular"), 1.0f, 1.0f, 1.0f);
+    glUniform1f(modelShader.uniformLocation("spotlight.constant"), 1.0f);
+    glUniform1f(modelShader.uniformLocation("spotlight.linear"), 0.09f);
+    glUniform1f(modelShader.uniformLocation("spotlight.quadratic"), 0.032f);
 }
