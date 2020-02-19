@@ -43,14 +43,14 @@ void MyGLWindow::initializeGL()
     testModel.loadModel("./models/nanosuit/nanosuit.obj");
     testModel.init();
     modelShader.create();
-    modelShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "model.vert");
-    modelShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "model.frag");
+    modelShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/model.vert");
+    modelShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/model.frag");
     modelShader.link();
 
     //light box
     lightBoxShader.create();
-    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "boxShader.vert");
-    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "lightBox.frag");
+    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/boxShader.vert");
+    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/lightBox.frag");
     lightBoxShader.link();
     lightBox.init();
     lightBox.resetScaleMat(scale(mat4(1.0f), vec3{ 0.2f }));
