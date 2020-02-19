@@ -32,15 +32,6 @@ void Mesh::init()
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER,VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-        void* buf = glMapBuffer(GL_ARRAY_BUFFER, GL_READ_WRITE);
-        Vertex* bufData = static_cast<Vertex*>(buf);
-        std::vector<Vertex> temp;
-        for (int i = 0; i < vertices.size(); ++i)
-        {
-            temp.push_back(bufData[i]);
-        }
-        glUnmapNamedBuffer(VBO);
     }
 
     if (EBO == 0)
@@ -48,15 +39,6 @@ void Mesh::init()
         glGenBuffers(1, &EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-        void* buf = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_READ_WRITE);
-        unsigned int* bufData = static_cast<unsigned int*>(buf);
-        std::vector<unsigned int> temp;
-        for (int i = 0; i < indices.size(); ++i)
-        {
-            temp.push_back(bufData[i]);
-        }
-        glUnmapNamedBuffer(VBO);
     }
 
     if (VAO == 0)
@@ -64,13 +46,13 @@ void Mesh::init()
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(0));
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal)));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords)));
         glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     }
     glBindVertexArray(0);
 }

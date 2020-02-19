@@ -38,6 +38,7 @@ void MyGLWindow::initializeGL()
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
 
     testModel.loadModel("./models/nanosuit/nanosuit.obj");
     testModel.init();
