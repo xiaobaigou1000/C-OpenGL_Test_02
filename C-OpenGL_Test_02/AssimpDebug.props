@@ -5,7 +5,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>D:\Library\assimp-5.0.1-vs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Library\assimp-5.0.1\include;D:\Library\assimp-5.0.1-vs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>D:\Library\assimp-5.0.1-vs\code\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
