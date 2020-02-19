@@ -96,20 +96,20 @@
     <QtMoc Include="MyGLWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="boxShader.frag" />
-    <None Include="boxShader.vert" />
-    <None Include="lightBox.frag" />
-    <None Include="model.frag" />
-    <None Include="model.vert" />
-    <None Include="triangleFragmentShader.frag" />
-    <None Include="triangleVertexShader.vert" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Simple3DBox.h" />
     <ClInclude Include="SimpleTextureBox.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\boxShader.frag" />
+    <None Include="shaders\boxShader.vert" />
+    <None Include="shaders\lightBox.frag" />
+    <None Include="shaders\model.frag" />
+    <None Include="shaders\model.vert" />
+    <None Include="shaders\triangleFragmentShader.frag" />
+    <None Include="shaders\triangleVertexShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

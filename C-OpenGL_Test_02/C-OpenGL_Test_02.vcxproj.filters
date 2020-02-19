@@ -42,20 +42,14 @@
       <Extensions>ui</Extensions>
       <ParseFiles>true</ParseFiles>
     </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{ceaddfb1-7a7e-40be-9e51-02e0bb5476af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="MyGLWindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="triangleFragmentShader.frag" />
-    <None Include="triangleVertexShader.vert" />
-    <None Include="boxShader.frag" />
-    <None Include="boxShader.vert" />
-    <None Include="lightBox.frag" />
-    <None Include="model.frag" />
-    <None Include="model.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SimpleTextureBox.h">
@@ -73,5 +67,28 @@
     <ClInclude Include="Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\model.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\model.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\triangleFragmentShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\triangleVertexShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\boxShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\boxShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\lightBox.frag">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
