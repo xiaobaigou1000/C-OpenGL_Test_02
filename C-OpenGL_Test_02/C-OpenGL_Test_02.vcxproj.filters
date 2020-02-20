@@ -90,5 +90,8 @@
     <None Include="shaders\lightBox.frag">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\modelCheckDepth.frag">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -38,19 +38,19 @@ void MyGLWindow::initializeGL()
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_LESS);
 
     testModel.loadModel("./models/nanosuit/nanosuit.obj");
     testModel.init();
     modelShader.create();
     modelShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/model.vert");
-    modelShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/model.frag");
+    modelShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/modelCheckDepth.frag");
     modelShader.link();
 
     //light box
     lightBoxShader.create();
     lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/boxShader.vert");
-    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/lightBox.frag");
+    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/modelCheckDepth.frag");
     lightBoxShader.link();
     lightBox.init();
     lightBox.resetScaleMat(scale(mat4(1.0f), vec3{ 0.2f }));

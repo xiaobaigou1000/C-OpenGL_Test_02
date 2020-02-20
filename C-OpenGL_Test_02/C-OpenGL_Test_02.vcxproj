@@ -108,6 +108,7 @@
     <None Include="shaders\lightBox.frag" />
     <None Include="shaders\model.frag" />
     <None Include="shaders\model.vert" />
+    <None Include="shaders\modelCheckDepth.frag" />
     <None Include="shaders\triangleFragmentShader.frag" />
     <None Include="shaders\triangleVertexShader.vert" />
   </ItemGroup>
