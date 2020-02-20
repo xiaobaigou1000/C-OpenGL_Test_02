@@ -99,5 +99,11 @@
     <None Include="shaders\singleColor.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\textureSquare.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\textureSquare.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

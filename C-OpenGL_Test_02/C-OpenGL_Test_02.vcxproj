@@ -111,6 +111,8 @@
     <None Include="shaders\modelCheckDepth.frag" />
     <None Include="shaders\singleColor.frag" />
     <None Include="shaders\singleColor.vert" />
+    <None Include="shaders\textureSquare.frag" />
+    <None Include="shaders\textureSquare.vert" />
     <None Include="shaders\triangleFragmentShader.frag" />
     <None Include="shaders\triangleVertexShader.vert" />
   </ItemGroup>

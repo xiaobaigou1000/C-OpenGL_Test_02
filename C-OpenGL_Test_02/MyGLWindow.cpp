@@ -33,7 +33,7 @@ MyGLWindow::~MyGLWindow()
 void MyGLWindow::initializeGL()
 {
     programBeginPoint = lastTimePoint = std::chrono::steady_clock::now();
-    std::default_random_engine dre( std::chrono::system_clock::now().time_since_epoch().count() );
+    std::default_random_engine dre(std::chrono::system_clock::now().time_since_epoch().count());
 
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -70,6 +70,38 @@ void MyGLWindow::initializeGL()
     singleColorShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/singleColor.vert");
     singleColorShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/singleColor.frag");
     singleColorShader.link();
+
+    vegetation.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
+    vegetation.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
+    vegetation.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
+    vegetation.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
+    vegetation.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
+
+    glGenVertexArrays(1, &vegetationVAO);
+    glGenBuffers(1, &vegetationVBO);
+    glGenBuffers(1, &vegetationEBO);
+    glBindBuffer(GL_ARRAY_BUFFER, vegetationVBO);
+    glBufferData(GL_ARRAY_BUFFER, vegetationVertices.size() * sizeof(float), vegetationVertices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vegetationEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vegetationIndices.size() * sizeof(unsigned int), vegetationIndices.data(), GL_STATIC_DRAW);
+    glBindVertexArray(vegetationVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, vegetationVBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vegetationEBO);
+    glBindVertexArray(0);
+
+    vegetationShader.create();
+    vegetationShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/textureSquare.vert");
+    vegetationShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/textureSquare.frag");
+    vegetationShader.link();
+
+    vegetationTex = new QOpenGLTexture(QImage("./images/grass.png").mirrored());
+    vegetationTex->bind();
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 void MyGLWindow::paintGL()
@@ -105,7 +137,7 @@ void MyGLWindow::paintGL()
 
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    
+
     //model
     modelShader.bind();
     vec3 position;
@@ -114,10 +146,10 @@ void MyGLWindow::paintGL()
     mat4 translateMat = translate(mat4{ 1.0f }, vec3(0.0f, -1.75f, 0.0f));
     mat4 scaleMat = scale(mat4{ 1.0f }, vec3(0.2f, 0.2f, 0.2f));
     mat4 modelMat = translateMat * scaleMat;
-    
+
     setLightVariableForShader(ambientColor, diffuseColor);
     glUniform1f(modelShader.uniformLocation("material.shininess"), 32.0f);
-    glUniformMatrix4fv(modelShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat()*modelMat));
+    glUniformMatrix4fv(modelShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat() * modelMat));
     glUniformMatrix4fv(modelShader.uniformLocation("modelMat"), 1, GL_FALSE, value_ptr(modelMat));
     glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(boxCamera.position));
     testModel.draw(&modelShader);
@@ -134,6 +166,14 @@ void MyGLWindow::paintGL()
     glEnable(GL_DEPTH_TEST);
     glStencilMask(0xFF); //if stencil mask set to 0x00, glClean(GL_STENCIL_BUFFER_BIT) will not work.
 
+    vegetationShader.bind();
+    glUniformMatrix4fv(vegetationShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat()));
+    glActiveTexture(GL_TEXTURE0);
+    vegetationTex->bind(GL_TEXTURE_2D);
+    glUniform1i(vegetationShader.uniformLocation("tex"), 0);
+
+    glBindVertexArray(vegetationVAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     update();
 }
 
