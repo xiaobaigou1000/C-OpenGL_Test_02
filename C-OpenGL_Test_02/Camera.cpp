@@ -29,7 +29,7 @@ void Camera::resizeCamera(int w, int h)
 void Camera::caculateCamera()
 {
     auto currentTime = steady_clock::now();
-    float intervalTime = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastFrame).count();
+    float intervalTime = duration_cast<duration<float>>(currentTime - lastFrame).count();
     if (keyW)
     {
         position += front * intervalTime * speed;

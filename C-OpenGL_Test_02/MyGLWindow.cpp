@@ -76,14 +76,14 @@ void MyGLWindow::paintGL()
 {
     boxCamera.caculateCamera();
     auto currentTime = std::chrono::steady_clock::now();
-    auto passedDuration = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
-    auto timeFromBeginPoint = duration_cast<duration<float, std::ratio<1>>>(currentTime - programBeginPoint);
+    auto passedDuration = duration_cast<duration<float>>(currentTime - lastTimePoint).count();
+    auto timeFromBeginPoint = duration_cast<duration<float>>(currentTime - programBeginPoint).count();
     lastTimePoint = currentTime;
 
     //light box
     vec3 lightColor{ 1.0f, 1.0f, 1.0f };
-    lightColor.r = 0.5f + 0.5f * sin(timeFromBeginPoint.count());
-    lightColor.g = 0.5f + 0.5f * cos(timeFromBeginPoint.count());
+    lightColor.r = 0.5f + 0.5f * sin(timeFromBeginPoint);
+    lightColor.g = 0.5f + 0.5f * cos(timeFromBeginPoint);
     lightColor.b = 1.0f - lightColor.r;
     vec3 diffuseColor = lightColor * vec3{ 0.7f };
     vec3 ambientColor = diffuseColor * vec3{ 0.3f };
@@ -93,8 +93,8 @@ void MyGLWindow::paintGL()
     glUniform3fv(lightBoxShader.uniformLocation("lightColor"), 1, value_ptr(lightColor));
     for (int i = 0; i < lightPos.size(); ++i)
     {
-        pointLightColor[i].r = 0.5f + 0.5f * sin(0.5f + timeFromBeginPoint.count() + 0.5f * i);
-        pointLightColor[i].g = 0.5f + 0.5f * cos(0.5f + timeFromBeginPoint.count() + 0.5f * i);
+        pointLightColor[i].r = 0.5f + 0.5f * sin(0.5f + timeFromBeginPoint + 0.5f * i);
+        pointLightColor[i].g = 0.5f + 0.5f * cos(0.5f + timeFromBeginPoint + 0.5f * i);
         pointLightColor[i].b = 1.0f - pointLightColor[i].r;
         glUniform3fv(lightBoxShader.uniformLocation("lightColor"), 1, value_ptr(pointLightColor[i]));
 
@@ -109,8 +109,8 @@ void MyGLWindow::paintGL()
     //model
     modelShader.bind();
     vec3 position;
-    position.x = 5.0f * sin(timeFromBeginPoint.count());
-    position.z = 5.0f * cos(timeFromBeginPoint.count());
+    position.x = 5.0f * sin(timeFromBeginPoint);
+    position.z = 5.0f * cos(timeFromBeginPoint);
     mat4 translateMat = translate(mat4{ 1.0f }, vec3(0.0f, -1.75f, 0.0f));
     mat4 scaleMat = scale(mat4{ 1.0f }, vec3(0.2f, 0.2f, 0.2f));
     mat4 modelMat = translateMat * scaleMat;
