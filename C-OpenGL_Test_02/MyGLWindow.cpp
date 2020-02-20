@@ -39,18 +39,20 @@ void MyGLWindow::initializeGL()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     testModel.loadModel("./models/nanosuit/nanosuit.obj");
     testModel.init();
     modelShader.create();
     modelShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/model.vert");
-    modelShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/modelCheckDepth.frag");
+    modelShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/model.frag");
     modelShader.link();
 
     //light box
     lightBoxShader.create();
     lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/boxShader.vert");
-    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/modelCheckDepth.frag");
+    lightBoxShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/lightBox.frag");
     lightBoxShader.link();
     lightBox.init();
     lightBox.resetScaleMat(scale(mat4(1.0f), vec3{ 0.2f }));
@@ -63,11 +65,15 @@ void MyGLWindow::initializeGL()
     lightPos.push_back(vec3(-0.7f, -0.8f, 0.0f));
     lightPos.push_back(vec3(0.0f, 0.4f, 0.7f));
     lightPos.push_back(vec3(-0.4f, 1.7f, 0.0f));
+
+    singleColorShader.create();
+    singleColorShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/singleColor.vert");
+    singleColorShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/singleColor.frag");
+    singleColorShader.link();
 }
 
 void MyGLWindow::paintGL()
 {
-
     boxCamera.caculateCamera();
     auto currentTime = std::chrono::steady_clock::now();
     auto passedDuration = duration_cast<duration<float, std::ratio<1>>>(currentTime - lastTimePoint);
@@ -97,7 +103,9 @@ void MyGLWindow::paintGL()
         lightBox.draw();
     }
 
-
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+    
     //model
     modelShader.bind();
     vec3 position;
@@ -113,6 +121,18 @@ void MyGLWindow::paintGL()
     glUniformMatrix4fv(modelShader.uniformLocation("modelMat"), 1, GL_FALSE, value_ptr(modelMat));
     glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(boxCamera.position));
     testModel.draw(&modelShader);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    glDisable(GL_DEPTH_TEST);
+    singleColorShader.bind();
+    scaleMat = scale(scaleMat, vec3(1.01f, 1.01f, 1.01f));
+    modelMat = translateMat * scaleMat;
+    glUniformMatrix4fv(singleColorShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat() * modelMat));
+    glUniform3fv(singleColorShader.uniformLocation("color"), 1, value_ptr(pointLightColor[0]));
+    testModel.draw(&singleColorShader);
+    glEnable(GL_DEPTH_TEST);
+    glStencilMask(0xFF); //if stencil mask set to 0x00, glClean(GL_STENCIL_BUFFER_BIT) will not work.
 
     update();
 }

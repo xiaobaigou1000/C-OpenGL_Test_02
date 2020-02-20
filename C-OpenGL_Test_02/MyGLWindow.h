@@ -34,6 +34,8 @@ private:
     Simple3DBox lightBox;
     QOpenGLShaderProgram lightBoxShader;
 
+    QOpenGLShaderProgram singleColorShader;
+
     Model testModel;
     QOpenGLShaderProgram modelShader;
     Camera boxCamera{ 800.0f,800.0f };

@@ -93,5 +93,11 @@
     <None Include="shaders\modelCheckDepth.frag">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\singleColor.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\singleColor.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
