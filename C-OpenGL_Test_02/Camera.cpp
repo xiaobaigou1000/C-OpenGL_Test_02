@@ -23,7 +23,7 @@ void Camera::resizeCamera(int w, int h)
 {
     windowWidth = static_cast<float>(w);
     windowHeight = static_cast<float>(h);
-    projectionMat = perspective(FOV, windowWidth / windowHeight, 0.1f, 5.0f);
+    projectionMat = perspective(FOV, windowWidth / windowHeight, 0.1f, 100.0f);
 }
 
 void Camera::caculateCamera()

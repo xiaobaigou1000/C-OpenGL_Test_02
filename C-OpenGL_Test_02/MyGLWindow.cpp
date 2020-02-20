@@ -165,6 +165,7 @@ void MyGLWindow::paintGL()
     testModel.draw(&singleColorShader);
     glEnable(GL_DEPTH_TEST);
     glStencilMask(0xFF); //if stencil mask set to 0x00, glClean(GL_STENCIL_BUFFER_BIT) will not work.
+    glClear(GL_STENCIL_BUFFER_BIT);
 
     vegetationShader.bind();
     glUniformMatrix4fv(vegetationShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat()));
@@ -172,8 +173,26 @@ void MyGLWindow::paintGL()
     vegetationTex->bind(GL_TEXTURE_2D);
     glUniform1i(vegetationShader.uniformLocation("tex"), 0);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendEquation(GL_FUNC_ADD);
+
     glBindVertexArray(vegetationVAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    std::sort(vegetation.begin(), vegetation.end(), [this](auto a,auto b)
+        {
+            float distanceA = glm::length(a - boxCamera.position);
+            float distanceB = glm::length(b - boxCamera.position);
+            return distanceA < distanceB;
+        });
+    for (auto& i : vegetation)
+    {
+        mat4 transFromVegetation = translate(mat4{ 1.0f }, i);
+        mat4 MVP = boxCamera.viewProjectionMat() * transFromVegetation;
+        glUniformMatrix4fv(vegetationShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(MVP));
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    }
+    glDisable(GL_BLEND);
+
     update();
 }
 
