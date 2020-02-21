@@ -93,8 +93,7 @@ void MyGLWindow::initializeGL()
     {
         qInfo() << "frame buffer init failed.";
     }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
 
     fboShader.create();
     fboShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/fboShader.vert");
@@ -103,6 +102,49 @@ void MyGLWindow::initializeGL()
 
     fboBox.init();
     fboBox.resetRotateMat(rotate(mat4{ 1.0f }, radians(55.0f), vec3(0.5f, 1.0f, 0.0f)));
+
+    glGenVertexArrays(1, &post.vao);
+    glGenBuffers(1, &post.vbo);
+    glGenBuffers(1, &post.ebo);
+    glBindBuffer(GL_ARRAY_BUFFER, post.vbo);
+    glBufferData(GL_ARRAY_BUFFER, screenVertices.size() * sizeof(float), screenVertices.data(), GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, post.ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, screenIndices.size() * sizeof(unsigned int), screenIndices.data(), GL_STATIC_DRAW);
+    glBindVertexArray(post.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, post.vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, post.ebo);
+    glBindVertexArray(0);
+
+    glGenFramebuffers(1, &post.fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, post.fbo);
+    glGenTextures(1, &post.tex);
+    glBindTexture(GL_TEXTURE_2D, post.tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width(), height(), 0, GL_RGBA, GL_UNSIGNED_INT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, post.tex, 0);
+    glGenTextures(1, &post.depthTex);
+    glBindTexture(GL_TEXTURE_2D, post.depthTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width(), height(), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, post.depthTex, 0);
+    if (glCheckFramebufferStatus(post.fbo) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        qInfo() << "post process frame buffer create failed.";
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+
+    post.shader.create();
+    post.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/postProcess.vert");
+    post.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/postProcess.frag");
+    post.shader.link();
 }
 
 void MyGLWindow::paintGL()
@@ -166,9 +208,9 @@ void MyGLWindow::paintGL()
     glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(innerPosition));
     testModel.draw(&modelShader);
 
-    //unbind frame buffer
+    //draw to post process tex
     glViewport(0, 0, width(), height());
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+    glBindFramebuffer(GL_FRAMEBUFFER, post.fbo);
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     fboBox.rotateMat = rotate(fboBox.rotateMat, radians(passedDuration * 10.0f), vec3(0.0f, 0.5f, 1.0f));
@@ -179,6 +221,14 @@ void MyGLWindow::paintGL()
     glBindTexture(GL_TEXTURE_2D, fboTex);
     glUniform1i(fboShader.uniformLocation("tex"), 0);
     fboBox.draw();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+    post.shader.bind();
+    glBindVertexArray(post.vao);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, post.tex);
+    glUniform1i(post.shader.uniformLocation("tex"), 0);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     update();
 }

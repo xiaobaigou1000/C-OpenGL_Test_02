@@ -46,4 +46,27 @@ private:
     QOpenGLShaderProgram fboShader;
     Simple3DBox fboBox;
 
+    struct PostProcess
+    {
+        unsigned int fbo;
+        unsigned int tex, depthTex;
+        unsigned int vao, vbo, ebo;
+        QOpenGLShaderProgram shader;
+    };
+
+    PostProcess post;
+
+    constexpr static std::array<float, 20> screenVertices
+    {
+        -1, -1,  0,  0,  0,
+         1, -1,  0,  1,  0,
+         1,  1,  0,  1,  1,
+        -1,  1,  0,  0,  1
+    };
+
+    constexpr static std::array<unsigned int, 6> screenIndices
+    {
+        0, 1, 2,
+        0, 2, 3
+    };
 };

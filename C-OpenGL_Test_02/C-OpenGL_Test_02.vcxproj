@@ -109,6 +109,8 @@
     <None Include="shaders\model.frag" />
     <None Include="shaders\model.vert" />
     <None Include="shaders\modelCheckDepth.frag" />
+    <None Include="shaders\postProcess.frag" />
+    <None Include="shaders\postProcess.vert" />
     <None Include="shaders\singleColor.frag" />
     <None Include="shaders\singleColor.vert" />
     <None Include="shaders\textureSquare.frag" />
