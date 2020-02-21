@@ -39,8 +39,6 @@ void MyGLWindow::initializeGL()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     testModel.loadModel("./models/nanosuit/nanosuit.obj");
     testModel.init();
@@ -65,43 +63,6 @@ void MyGLWindow::initializeGL()
     lightPos.push_back(vec3(-0.7f, -0.8f, 0.0f));
     lightPos.push_back(vec3(0.0f, 0.4f, 0.7f));
     lightPos.push_back(vec3(-0.4f, 1.7f, 0.0f));
-
-    singleColorShader.create();
-    singleColorShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/singleColor.vert");
-    singleColorShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/singleColor.frag");
-    singleColorShader.link();
-
-    vegetation.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
-    vegetation.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
-    vegetation.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
-    vegetation.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
-    vegetation.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
-
-    glGenVertexArrays(1, &vegetationVAO);
-    glGenBuffers(1, &vegetationVBO);
-    glGenBuffers(1, &vegetationEBO);
-    glBindBuffer(GL_ARRAY_BUFFER, vegetationVBO);
-    glBufferData(GL_ARRAY_BUFFER, vegetationVertices.size() * sizeof(float), vegetationVertices.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vegetationEBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vegetationIndices.size() * sizeof(unsigned int), vegetationIndices.data(), GL_STATIC_DRAW);
-    glBindVertexArray(vegetationVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, vegetationVBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vegetationEBO);
-    glBindVertexArray(0);
-
-    vegetationShader.create();
-    vegetationShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/textureSquare.vert");
-    vegetationShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/textureSquare.frag");
-    vegetationShader.link();
-
-    vegetationTex = new QOpenGLTexture(QImage("./images/grass.png").mirrored());
-    vegetationTex->bind();
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 void MyGLWindow::paintGL()
@@ -135,9 +96,6 @@ void MyGLWindow::paintGL()
         lightBox.draw();
     }
 
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
-
     //model
     modelShader.bind();
     vec3 position;
@@ -153,45 +111,6 @@ void MyGLWindow::paintGL()
     glUniformMatrix4fv(modelShader.uniformLocation("modelMat"), 1, GL_FALSE, value_ptr(modelMat));
     glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(mainCamera.position));
     testModel.draw(&modelShader);
-
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilMask(0x00);
-    glDisable(GL_DEPTH_TEST);
-    singleColorShader.bind();
-    scaleMat = scale(scaleMat, vec3(1.01f, 1.01f, 1.01f));
-    modelMat = translateMat * scaleMat;
-    glUniformMatrix4fv(singleColorShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * modelMat));
-    glUniform3fv(singleColorShader.uniformLocation("color"), 1, value_ptr(pointLightColor[0]));
-    testModel.draw(&singleColorShader);
-    glEnable(GL_DEPTH_TEST);
-    glStencilMask(0xFF); //if stencil mask set to 0x00, glClean(GL_STENCIL_BUFFER_BIT) will not work.
-    glClear(GL_STENCIL_BUFFER_BIT);
-
-    vegetationShader.bind();
-    glUniformMatrix4fv(vegetationShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat()));
-    glActiveTexture(GL_TEXTURE0);
-    vegetationTex->bind(GL_TEXTURE_2D);
-    glUniform1i(vegetationShader.uniformLocation("tex"), 0);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBlendEquation(GL_FUNC_ADD);
-
-    glBindVertexArray(vegetationVAO);
-    std::sort(vegetation.begin(), vegetation.end(), [this](auto a,auto b)
-        {
-            float distanceA = glm::length(a - mainCamera.position);
-            float distanceB = glm::length(b - mainCamera.position);
-            return distanceA < distanceB;
-        });
-    for (auto& i : vegetation)
-    {
-        mat4 transFromVegetation = translate(mat4{ 1.0f }, i);
-        mat4 MVP = mainCamera.viewProjectionMat() * transFromVegetation;
-        glUniformMatrix4fv(vegetationShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(MVP));
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    }
-    glDisable(GL_BLEND);
 
     update();
 }
