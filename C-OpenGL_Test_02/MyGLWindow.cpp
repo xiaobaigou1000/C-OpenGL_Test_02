@@ -42,10 +42,6 @@ void MyGLWindow::initializeGL()
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-
     testModel.loadModel("./models/nanosuit/nanosuit.obj");
     testModel.init();
     modelShader.create();
@@ -110,7 +106,7 @@ void MyGLWindow::initializeGL()
 
 void MyGLWindow::paintGL()
 {
-    boxCamera.caculateCamera();
+    mainCamera.caculateCamera();
     auto currentTime = std::chrono::steady_clock::now();
     auto passedDuration = duration_cast<duration<float>>(currentTime - lastTimePoint).count();
     auto timeFromBeginPoint = duration_cast<duration<float>>(currentTime - programBeginPoint).count();
@@ -135,7 +131,7 @@ void MyGLWindow::paintGL()
         glUniform3fv(lightBoxShader.uniformLocation("lightColor"), 1, value_ptr(pointLightColor[i]));
 
         mat4 lightModel = translate(mat4{ 1.0f }, lightPos[i]) * lightBox.scaleMat;
-        glUniformMatrix4fv(lightBoxShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat() * lightModel));
+        glUniformMatrix4fv(lightBoxShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * lightModel));
         lightBox.draw();
     }
 
@@ -153,9 +149,9 @@ void MyGLWindow::paintGL()
 
     setLightVariableForShader(ambientColor, diffuseColor);
     glUniform1f(modelShader.uniformLocation("material.shininess"), 32.0f);
-    glUniformMatrix4fv(modelShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat() * modelMat));
+    glUniformMatrix4fv(modelShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * modelMat));
     glUniformMatrix4fv(modelShader.uniformLocation("modelMat"), 1, GL_FALSE, value_ptr(modelMat));
-    glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(boxCamera.position));
+    glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(mainCamera.position));
     testModel.draw(&modelShader);
 
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -164,7 +160,7 @@ void MyGLWindow::paintGL()
     singleColorShader.bind();
     scaleMat = scale(scaleMat, vec3(1.01f, 1.01f, 1.01f));
     modelMat = translateMat * scaleMat;
-    glUniformMatrix4fv(singleColorShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat() * modelMat));
+    glUniformMatrix4fv(singleColorShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * modelMat));
     glUniform3fv(singleColorShader.uniformLocation("color"), 1, value_ptr(pointLightColor[0]));
     testModel.draw(&singleColorShader);
     glEnable(GL_DEPTH_TEST);
@@ -172,7 +168,7 @@ void MyGLWindow::paintGL()
     glClear(GL_STENCIL_BUFFER_BIT);
 
     vegetationShader.bind();
-    glUniformMatrix4fv(vegetationShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(boxCamera.viewProjectionMat()));
+    glUniformMatrix4fv(vegetationShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat()));
     glActiveTexture(GL_TEXTURE0);
     vegetationTex->bind(GL_TEXTURE_2D);
     glUniform1i(vegetationShader.uniformLocation("tex"), 0);
@@ -184,14 +180,14 @@ void MyGLWindow::paintGL()
     glBindVertexArray(vegetationVAO);
     std::sort(vegetation.begin(), vegetation.end(), [this](auto a,auto b)
         {
-            float distanceA = glm::length(a - boxCamera.position);
-            float distanceB = glm::length(b - boxCamera.position);
+            float distanceA = glm::length(a - mainCamera.position);
+            float distanceB = glm::length(b - mainCamera.position);
             return distanceA < distanceB;
         });
     for (auto& i : vegetation)
     {
         mat4 transFromVegetation = translate(mat4{ 1.0f }, i);
-        mat4 MVP = boxCamera.viewProjectionMat() * transFromVegetation;
+        mat4 MVP = mainCamera.viewProjectionMat() * transFromVegetation;
         glUniformMatrix4fv(vegetationShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(MVP));
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
@@ -202,7 +198,7 @@ void MyGLWindow::paintGL()
 
 void MyGLWindow::resizeGL(int w, int h)
 {
-    boxCamera.resizeCamera(w, h);
+    mainCamera.resizeCamera(w, h);
 }
 
 void MyGLWindow::mouseMoveEvent(QMouseEvent* event)
@@ -224,7 +220,7 @@ void MyGLWindow::mouseMoveEvent(QMouseEvent* event)
     }
     float xAxisMove = event->x() - width() / 2;
     float yAxisMove = event->y() - height() / 2;
-    boxCamera.processMouseMovement(xAxisMove, yAxisMove);
+    mainCamera.processMouseMovement(xAxisMove, yAxisMove);
     QCursor myCursor = cursor();
     myCursor.setPos(mapToGlobal({ width() / 2, height() / 2 }));
     setCursor(myCursor);
@@ -235,25 +231,25 @@ void MyGLWindow::keyPressEvent(QKeyEvent* event)
     if (event->key() == Qt::Key_Escape)
         close();
     if (event->key() == Qt::Key_W)
-        boxCamera.setKeyW(true);
+        mainCamera.setKeyW(true);
     if (event->key() == Qt::Key_S)
-        boxCamera.setKeyS(true);
+        mainCamera.setKeyS(true);
     if (event->key() == Qt::Key_A)
-        boxCamera.setKeyA(true);
+        mainCamera.setKeyA(true);
     if (event->key() == Qt::Key_D)
-        boxCamera.setKeyD(true);
+        mainCamera.setKeyD(true);
 }
 
 void MyGLWindow::keyReleaseEvent(QKeyEvent* event)
 {
     if (event->key() == Qt::Key_W)
-        boxCamera.setKeyW(false);
+        mainCamera.setKeyW(false);
     if (event->key() == Qt::Key_S)
-        boxCamera.setKeyS(false);
+        mainCamera.setKeyS(false);
     if (event->key() == Qt::Key_A)
-        boxCamera.setKeyA(false);
+        mainCamera.setKeyA(false);
     if (event->key() == Qt::Key_D)
-        boxCamera.setKeyD(false);
+        mainCamera.setKeyD(false);
 }
 
 void MyGLWindow::setLightVariableForShader(vec3 ambientColor, vec3 diffuseColor)
@@ -282,8 +278,8 @@ void MyGLWindow::setLightVariableForShader(vec3 ambientColor, vec3 diffuseColor)
         glUniform3f(modelShader.uniformLocation(lightName + "specular"), 1.0f, 1.0f, 1.0f);
     }
 
-    glUniform3fv(modelShader.uniformLocation("spotlight.position"), 1, value_ptr(boxCamera.position));
-    glUniform3fv(modelShader.uniformLocation("spotlight.direction"), 1, value_ptr(boxCamera.front));
+    glUniform3fv(modelShader.uniformLocation("spotlight.position"), 1, value_ptr(mainCamera.position));
+    glUniform3fv(modelShader.uniformLocation("spotlight.direction"), 1, value_ptr(mainCamera.front));
     glUniform1f(modelShader.uniformLocation("spotlight.cutOff"), cosf(radians(12.5f)));
     glUniform1f(modelShader.uniformLocation("spotlight.outerCutOff"), cosf(radians(17.5f)));
     glUniform3fv(modelShader.uniformLocation("spotlight.ambient"), 1, value_ptr(spotAmbientColor));

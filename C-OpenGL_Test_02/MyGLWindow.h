@@ -38,7 +38,7 @@ private:
 
     Model testModel;
     QOpenGLShaderProgram modelShader;
-    Camera boxCamera{ 800.0f,800.0f };
+    Camera mainCamera{ 800.0f,800.0f };
     std::chrono::steady_clock::time_point lastTimePoint;
     std::chrono::steady_clock::time_point programBeginPoint;
 
