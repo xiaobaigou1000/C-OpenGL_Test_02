@@ -42,7 +42,7 @@ private:
 
     unsigned int FBO;
     unsigned int fboTex;
-    unsigned int RBO;
+    unsigned int fboDepthTex;
     QOpenGLShaderProgram fboShader;
     Simple3DBox fboBox;
 

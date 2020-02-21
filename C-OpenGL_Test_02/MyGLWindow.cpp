@@ -20,8 +20,8 @@ using glm::lookAt;
 MyGLWindow::MyGLWindow(QWidget* parent)
     : QOpenGLWidget(parent)
 {
-    resize(800, 800);
-    //setWindowFlags(Qt::FramelessWindowHint);
+    resize(1920, 1080);
+    setWindowFlags(Qt::FramelessWindowHint);
     setCursor(Qt::BlankCursor);
     setMouseTracking(true);
 }
@@ -77,11 +77,13 @@ void MyGLWindow::initializeGL()
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTex, 0);
 
-    glGenRenderbuffers(1, &RBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 800);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
+    glGenTextures(1, &fboDepthTex);
+    glBindTexture(GL_TEXTURE_2D, fboDepthTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 800, 800, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, fboDepthTex, 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE)
     {
@@ -123,6 +125,7 @@ void MyGLWindow::paintGL()
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glViewport(0, 0, 800, 800);
 
     //light box
     vec3 lightColor{ 1.0f, 1.0f, 1.0f };
@@ -164,9 +167,9 @@ void MyGLWindow::paintGL()
     testModel.draw(&modelShader);
 
     //unbind frame buffer
-    
+    glViewport(0, 0, width(), height());
     glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     fboBox.rotateMat = rotate(fboBox.rotateMat, radians(passedDuration * 10.0f), vec3(0.0f, 0.5f, 1.0f));
     fboBox.bind();
