@@ -6,5 +6,7 @@ uniform sampler2D tex;
 
 void main()
 {
-    Frag_Color = vec4(1.0f, 1.0f, 1.0f, 1.0f) - texture(tex, TexCoords);
+    vec4 color = texture(tex, TexCoords);
+    float average = 0.2126 * color.r + 0.7152 * color.g + 0.0722 * color.b;
+    Frag_Color = vec4(average, average, average, 1.0f);
 }
