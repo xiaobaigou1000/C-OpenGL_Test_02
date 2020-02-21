@@ -151,15 +151,17 @@ void MyGLWindow::initializeGL()
     {
         glGenTextures(1, &cubeMap.tex);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.tex);
-        std::string filePath = "./iamges/skybox";
+        std::string filePath = "./images/skybox/";
         std::string suffix = ".jpg";
         int i = 0;
         for (auto const& fileName : { "right","left","top","bottom","back","front" })
         {
+            std::string file = filePath + fileName + suffix;
             QImage image(QString::fromStdString(filePath + fileName + suffix));
-            image.convertTo(QImage::Format_RGB32);
-            image = image.mirrored();
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i++, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.bits());
+            image = image.mirrored(true, false);
+            image.convertTo(QImage::Format_ARGB32);
+            const unsigned char* data = image.bits();
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i++, 0, GL_RGB, image.width(), image.height(), 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, image.bits());
         }
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -246,15 +248,17 @@ void MyGLWindow::paintGL()
     testModel.draw(&modelShader);
 
     //draw to post process tex
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+
     glViewport(0, 0, width(), height());
-    glBindFramebuffer(GL_FRAMEBUFFER, post.fbo);
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     glDepthMask(GL_FALSE);
     cubeMap.shader.bind();
     glBindVertexArray(cubeMap.vao);
-    glUniformMatrix4fv(cubeMap.shader.uniformLocation("VP"), 1, GL_FALSE, value_ptr(mat4(mat3(mainCamera.viewProjectionMat()))));
+    mat4 VPMap = mainCamera.projectionMat * lookAt(vec3(0.0f),mainCamera.front, vec3(0.0f, 1.0f, 0.0f));
+    glUniformMatrix4fv(cubeMap.shader.uniformLocation("VP"), 1, GL_FALSE, value_ptr(VPMap));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.tex);
     glUniform1i(cubeMap.shader.uniformLocation("tex"), 0);
@@ -269,15 +273,6 @@ void MyGLWindow::paintGL()
     glBindTexture(GL_TEXTURE_2D, fboTex);
     glUniform1i(fboShader.uniformLocation("tex"), 0);
     fboBox.draw();
-
-    //post process
-    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
-    post.shader.bind();
-    glBindVertexArray(post.vao);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, post.tex);
-    glUniform1i(post.shader.uniformLocation("tex"), 0);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     update();
 }
