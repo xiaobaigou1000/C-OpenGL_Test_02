@@ -1,5 +1,6 @@
 #include "MyGLWindow.h"
 
+#include<qimage.h>
 #include<QKeyEvent>
 #include<cmath>
 
@@ -7,6 +8,7 @@ using std::chrono::steady_clock;
 using std::chrono::duration_cast;
 using std::chrono::duration;
 using glm::mat4;
+using glm::mat3;
 using glm::vec3;
 using glm::translate;
 using glm::scale;
@@ -135,7 +137,7 @@ void MyGLWindow::initializeGL()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, post.depthTex, 0);
-    if (glCheckFramebufferStatus(post.fbo) != GL_FRAMEBUFFER_COMPLETE)
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         qInfo() << "post process frame buffer create failed.";
     }
@@ -145,6 +147,41 @@ void MyGLWindow::initializeGL()
     post.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/postProcess.vert");
     post.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/postProcess.frag");
     post.shader.link();
+
+    {
+        glGenTextures(1, &cubeMap.tex);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.tex);
+        std::string filePath = "./iamges/skybox";
+        std::string suffix = ".jpg";
+        int i = 0;
+        for (auto const& fileName : { "right","left","top","bottom","back","front" })
+        {
+            QImage image(QString::fromStdString(filePath + fileName + suffix));
+            image.convertTo(QImage::Format_RGB32);
+            image = image.mirrored();
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i++, 0, GL_RGB, image.width(), image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.bits());
+        }
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
+
+    glGenVertexArrays(1, &cubeMap.vao);
+    glGenBuffers(1, &cubeMap.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeMap.vbo);
+    glBufferData(GL_ARRAY_BUFFER, CubeMap::vertices.size() * sizeof(float), CubeMap::vertices.data(), GL_STATIC_DRAW);
+    glBindVertexArray(cubeMap.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeMap.vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
+    cubeMap.shader.create();
+    cubeMap.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/cubeMapShader.vert");
+    cubeMap.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/cubeMapShader.frag");
+    cubeMap.shader.link();
 }
 
 void MyGLWindow::paintGL()
@@ -213,6 +250,17 @@ void MyGLWindow::paintGL()
     glBindFramebuffer(GL_FRAMEBUFFER, post.fbo);
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    glDepthMask(GL_FALSE);
+    cubeMap.shader.bind();
+    glBindVertexArray(cubeMap.vao);
+    glUniformMatrix4fv(cubeMap.shader.uniformLocation("VP"), 1, GL_FALSE, value_ptr(mat4(mat3(mainCamera.viewProjectionMat()))));
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.tex);
+    glUniform1i(cubeMap.shader.uniformLocation("tex"), 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDepthMask(GL_TRUE);
+
     fboBox.rotateMat = rotate(fboBox.rotateMat, radians(passedDuration * 10.0f), vec3(0.0f, 0.5f, 1.0f));
     fboBox.bind();
     fboShader.bind();
@@ -222,6 +270,7 @@ void MyGLWindow::paintGL()
     glUniform1i(fboShader.uniformLocation("tex"), 0);
     fboBox.draw();
 
+    //post process
     glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
     post.shader.bind();
     glBindVertexArray(post.vao);

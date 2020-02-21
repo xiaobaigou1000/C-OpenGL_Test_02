@@ -111,5 +111,11 @@
     <None Include="shaders\postProcess.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\cubeMapShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\cubeMapShader.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
