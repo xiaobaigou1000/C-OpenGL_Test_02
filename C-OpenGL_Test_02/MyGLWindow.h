@@ -41,7 +41,9 @@ private:
     std::chrono::steady_clock::time_point programBeginPoint;
 
     unsigned int FBO;
-    unsigned int texColorBufferFBO;
+    unsigned int fboTex;
     unsigned int RBO;
+    QOpenGLShaderProgram fboShader;
+    Simple3DBox fboBox;
 
 };

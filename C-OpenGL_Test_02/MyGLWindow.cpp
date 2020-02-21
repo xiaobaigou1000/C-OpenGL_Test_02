@@ -67,15 +67,15 @@ void MyGLWindow::initializeGL()
     glGenFramebuffers(1, &FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
-    glGenTextures(1, &texColorBufferFBO);
+    glGenTextures(1, &fboTex);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texColorBufferFBO);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 800, 0, GL_RGB, GL_UNSIGNED_INT, nullptr);
+    glBindTexture(GL_TEXTURE_2D, fboTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 800, 800, 0, GL_RGBA, GL_UNSIGNED_INT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBufferFBO, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTex, 0);
 
     glGenRenderbuffers(1, &RBO);
     glBindRenderbuffer(GL_RENDERBUFFER, RBO);
@@ -93,6 +93,14 @@ void MyGLWindow::initializeGL()
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    fboShader.create();
+    fboShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/fboShader.vert");
+    fboShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/fboShader.frag");
+    fboShader.link();
+
+    fboBox.init();
+    fboBox.resetRotateMat(rotate(mat4{ 1.0f }, radians(55.0f), vec3(0.5f, 1.0f, 0.0f)));
 }
 
 void MyGLWindow::paintGL()
@@ -102,6 +110,19 @@ void MyGLWindow::paintGL()
     auto passedDuration = duration_cast<duration<float>>(currentTime - lastTimePoint).count();
     auto timeFromBeginPoint = duration_cast<duration<float>>(currentTime - programBeginPoint).count();
     lastTimePoint = currentTime;
+
+    //inner camera
+    vec3 innerPosition;
+    innerPosition.x = 2.0f * sin(timeFromBeginPoint);
+    innerPosition.z = 2.0f * cos(timeFromBeginPoint);
+    mat4 innerView = lookAt(innerPosition, vec3(), vec3(0.0f, 1.0f, 0.0f));
+    mat4 innerProjection = perspective(45.0f, 800.0f / 800.0f, 0.1f, 10.0f);
+    mat4 innerVP = innerProjection * innerView;
+
+    //bind frame buffer
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     //light box
     vec3 lightColor{ 1.0f, 1.0f, 1.0f };
@@ -122,7 +143,7 @@ void MyGLWindow::paintGL()
         glUniform3fv(lightBoxShader.uniformLocation("lightColor"), 1, value_ptr(pointLightColor[i]));
 
         mat4 lightModel = translate(mat4{ 1.0f }, lightPos[i]) * lightBox.scaleMat;
-        glUniformMatrix4fv(lightBoxShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * lightModel));
+        glUniformMatrix4fv(lightBoxShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(innerVP * lightModel));
         lightBox.draw();
     }
 
@@ -137,10 +158,24 @@ void MyGLWindow::paintGL()
 
     setLightVariableForShader(ambientColor, diffuseColor);
     glUniform1f(modelShader.uniformLocation("material.shininess"), 32.0f);
-    glUniformMatrix4fv(modelShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * modelMat));
+    glUniformMatrix4fv(modelShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(innerVP * modelMat));
     glUniformMatrix4fv(modelShader.uniformLocation("modelMat"), 1, GL_FALSE, value_ptr(modelMat));
-    glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(mainCamera.position));
+    glUniform3fv(modelShader.uniformLocation("viewPos"), 1, value_ptr(innerPosition));
     testModel.draw(&modelShader);
+
+    //unbind frame buffer
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    fboBox.rotateMat = rotate(fboBox.rotateMat, radians(passedDuration * 10.0f), vec3(0.0f, 0.5f, 1.0f));
+    fboBox.bind();
+    fboShader.bind();
+    glUniformMatrix4fv(fboShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * fboBox.getModelMat()));
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, fboTex);
+    glUniform1i(fboShader.uniformLocation("tex"), 0);
+    fboBox.draw();
 
     update();
 }
