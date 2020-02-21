@@ -42,6 +42,10 @@ void MyGLWindow::initializeGL()
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+
     testModel.loadModel("./models/nanosuit/nanosuit.obj");
     testModel.init();
     modelShader.create();
