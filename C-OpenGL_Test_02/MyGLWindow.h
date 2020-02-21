@@ -39,4 +39,9 @@ private:
     Camera mainCamera{ 800.0f,800.0f };
     std::chrono::steady_clock::time_point lastTimePoint;
     std::chrono::steady_clock::time_point programBeginPoint;
+
+    unsigned int FBO;
+    unsigned int texColorBufferFBO;
+    unsigned int RBO;
+
 };
