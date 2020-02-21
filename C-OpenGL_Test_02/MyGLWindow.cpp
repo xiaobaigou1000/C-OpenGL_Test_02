@@ -154,11 +154,10 @@ void MyGLWindow::initializeGL()
         std::string filePath = "./images/skybox/";
         std::string suffix = ".jpg";
         int i = 0;
-        for (auto const& fileName : { "right","left","top","bottom","back","front" })
+        for (auto const& fileName : { "right","left","top","bottom","front","back" })
         {
             std::string file = filePath + fileName + suffix;
             QImage image(QString::fromStdString(filePath + fileName + suffix));
-            image = image.mirrored(true, false);
             image.convertTo(QImage::Format_ARGB32);
             const unsigned char* data = image.bits();
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i++, 0, GL_RGB, image.width(), image.height(), 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, image.bits());
