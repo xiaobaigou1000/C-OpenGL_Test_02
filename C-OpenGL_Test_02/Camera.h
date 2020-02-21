@@ -13,6 +13,7 @@ public:
     float yaw = 0.0f, pitch = 0.0f;
 
     float FOV = 45.0f;
+    float nearPlane = 0.1f, farPlane = 100.0f;
     float windowWidth, windowHeight;
     glm::mat4 projectionMat{ 1.0f };
     void resizeCamera(int w, int h);
