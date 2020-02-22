@@ -68,7 +68,7 @@ void Mesh::setShaderVariables(QOpenGLShaderProgram* shader)
 {
     int diffuseNum = 1;
     int specularNum = 1;
-    for (int i = 0; i < textures.size(); ++i)
+    for (unsigned int i = 0; i < textures.size(); ++i)
     {
         std::string number;
         glActiveTexture(GL_TEXTURE0 + i);

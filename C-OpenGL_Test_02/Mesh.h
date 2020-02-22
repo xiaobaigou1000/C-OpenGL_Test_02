@@ -34,7 +34,7 @@ public:
 
         std::string bind()
         {
-            tex->bind(GL_TEXTURE_2D);
+            tex->bind();
             return type;
         }
     };
