@@ -187,6 +187,11 @@ void MyGLWindow::initializeGL()
     cubeMap.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/cubeMapShader.vert");
     cubeMap.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/cubeMapShader.frag");
     cubeMap.shader.link();
+
+    cubeReflectShader.create();
+    cubeReflectShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/environmentMapping.vert");
+    cubeReflectShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/environmentMapping.frag");
+    cubeReflectShader.link();
 }
 
 void MyGLWindow::paintGL()
@@ -258,9 +263,14 @@ void MyGLWindow::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     fboBox.rotateMat = rotate(fboBox.rotateMat, radians(passedDuration * 10.0f), vec3(0.0f, 0.5f, 1.0f));
+    cubeReflectShader.bind();
     fboBox.bind();
-    fboShader.bind();
-    glUniformMatrix4fv(fboShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * fboBox.getModelMat()));
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.tex);
+    glUniform1i(cubeReflectShader.uniformLocation("cubeMap"), 0);
+    glUniform3fv(cubeReflectShader.uniformLocation("viewPos"), 1, value_ptr(mainCamera.position));
+    glUniformMatrix4fv(cubeReflectShader.uniformLocation("modelMat"), 1, GL_FALSE, value_ptr(fboBox.getModelMat()));
+    glUniformMatrix4fv(cubeReflectShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * fboBox.getModelMat()));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, fboTex);
     glUniform1i(fboShader.uniformLocation("tex"), 0);

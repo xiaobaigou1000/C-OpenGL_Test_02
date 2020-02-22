@@ -123,4 +123,6 @@ private:
         };
     };
     CubeMap cubeMap;
+
+    QOpenGLShaderProgram cubeReflectShader;
 };

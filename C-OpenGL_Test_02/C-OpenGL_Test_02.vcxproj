@@ -107,6 +107,7 @@
     <None Include="shaders\boxShader.vert" />
     <None Include="shaders\cubeMapShader.frag" />
     <None Include="shaders\cubeMapShader.vert" />
+    <None Include="shaders\environmentMapping.frag" />
     <None Include="shaders\lightBox.frag" />
     <None Include="shaders\model.frag" />
     <None Include="shaders\model.vert" />
