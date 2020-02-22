@@ -40,7 +40,7 @@ void MyGLWindow::initializeGL()
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LEQUAL);
 
     testModel.loadModel("./models/nanosuit/nanosuit.obj");
     testModel.init();
@@ -160,6 +160,10 @@ void MyGLWindow::initializeGL()
             QImage image(QString::fromStdString(filePath + fileName + suffix));
             image.convertTo(QImage::Format_ARGB32);
             const unsigned char* data = image.bits();
+            if (!data)
+            {
+                qInfo() << "cube map image invalid.\n";
+            }
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i++, 0, GL_RGB, image.width(), image.height(), 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, image.bits());
         }
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -253,17 +257,6 @@ void MyGLWindow::paintGL()
     glClearColor(0.27f, 0.27f, 0.27f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    glDepthMask(GL_FALSE);
-    cubeMap.shader.bind();
-    glBindVertexArray(cubeMap.vao);
-    mat4 VPMap = mainCamera.projectionMat * lookAt(vec3(0.0f),mainCamera.front, vec3(0.0f, 1.0f, 0.0f));
-    glUniformMatrix4fv(cubeMap.shader.uniformLocation("VP"), 1, GL_FALSE, value_ptr(VPMap));
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.tex);
-    glUniform1i(cubeMap.shader.uniformLocation("tex"), 0);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    glDepthMask(GL_TRUE);
-
     fboBox.rotateMat = rotate(fboBox.rotateMat, radians(passedDuration * 10.0f), vec3(0.0f, 0.5f, 1.0f));
     fboBox.bind();
     fboShader.bind();
@@ -272,6 +265,16 @@ void MyGLWindow::paintGL()
     glBindTexture(GL_TEXTURE_2D, fboTex);
     glUniform1i(fboShader.uniformLocation("tex"), 0);
     fboBox.draw();
+
+    //cube map
+    cubeMap.shader.bind();
+    glBindVertexArray(cubeMap.vao);
+    mat4 VPMap = mainCamera.projectionMat * lookAt(vec3(0.0f), mainCamera.front, vec3(0.0f, 1.0f, 0.0f));
+    glUniformMatrix4fv(cubeMap.shader.uniformLocation("VP"), 1, GL_FALSE, value_ptr(VPMap));
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap.tex);
+    glUniform1i(cubeMap.shader.uniformLocation("tex"), 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     update();
 }

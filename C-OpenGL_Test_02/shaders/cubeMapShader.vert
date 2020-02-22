@@ -7,5 +7,6 @@ uniform mat4 VP;
 void main()
 {
     TexCoords = position;
-    gl_Position = VP * vec4(position, 1.0f);
+    vec4 transformedPosition = VP * vec4(position, 1.0f);
+    gl_Position = transformedPosition.xyww;
 }
