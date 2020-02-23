@@ -27,8 +27,6 @@ public:
 private:
     void setLightVariableForShader(glm::vec3 ambientColor, glm::vec3 diffuseColor);
 
-    bool firstMouse = true, secondMouse = true;
-
     std::vector<glm::vec3> pointLightColor;
     std::vector<glm::vec3> lightPos;
     Simple3DBox lightBox;

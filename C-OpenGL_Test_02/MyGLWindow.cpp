@@ -296,27 +296,16 @@ void MyGLWindow::resizeGL(int w, int h)
 
 void MyGLWindow::mouseMoveEvent(QMouseEvent* event)
 {
-    if (!rect().contains(event->pos()))
-        return;
-    if (firstMouse)
-    {
-        QCursor myCursor = cursor();
-        myCursor.setPos(mapToGlobal({ width() / 2, height() / 2 }));
-        setCursor(myCursor);
-        firstMouse = false;
-        return;
-    }
-    if (secondMouse)
-    {
-        secondMouse = false;
-        return;
-    }
     float xAxisMove = event->x() - width() / 2;
     float yAxisMove = event->y() - height() / 2;
-    mainCamera.processMouseMovement(xAxisMove, yAxisMove);
     QCursor myCursor = cursor();
     myCursor.setPos(mapToGlobal({ width() / 2, height() / 2 }));
     setCursor(myCursor);
+    if (std::abs(xAxisMove) > 150.0f || std::abs(yAxisMove) > 150.0f)
+    {
+        return;
+    }
+    mainCamera.processMouseMovement(xAxisMove, yAxisMove);
 }
 
 void MyGLWindow::keyPressEvent(QKeyEvent* event)
