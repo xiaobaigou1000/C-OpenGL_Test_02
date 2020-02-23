@@ -29,5 +29,20 @@ private:
     std::chrono::steady_clock::time_point lastTimePoint;
     std::chrono::steady_clock::time_point programBeginPoint;
     //code here
+    struct AdvancedDataTest
+    {
+        unsigned int vbo;
+        unsigned int vao;
+        QOpenGLShaderProgram shader;
 
+        constexpr static std::array<float, 12> vertices
+        {
+            -0.5, -0.5, 0.0,
+             0.5, -0.5, 0.0,
+            -0.5,  0.5, 0.0,
+             0.5,  0.5, 0.0
+        };
+    };
+
+    AdvancedDataTest adt;
 };

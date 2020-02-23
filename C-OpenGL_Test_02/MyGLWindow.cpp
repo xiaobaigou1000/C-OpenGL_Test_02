@@ -3,6 +3,7 @@
 #include<qimage.h>
 #include<QKeyEvent>
 #include<cmath>
+#include<memory>
 
 using std::chrono::steady_clock;
 using std::chrono::duration_cast;
@@ -43,7 +44,34 @@ void MyGLWindow::initializeGL()
     glDepthFunc(GL_LEQUAL);
 
     //code here
+    glPrimitiveRestartIndex(0xFFFF);
 
+    glGenBuffers(1, &adt.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, adt.vbo);
+    glBufferStorage(GL_ARRAY_BUFFER, adt.vertices.size() * sizeof(float), nullptr, GL_MAP_WRITE_BIT);
+    float* ptr = static_cast<float*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
+    memcpy(ptr, adt.vertices.data(), adt.vertices.size() * sizeof(float));
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glGenVertexArrays(1, &adt.vao);
+    glBindVertexArray(adt.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, adt.vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    glEnableVertexAttribArray(0);
+
+    adt.shader.create();
+    adt.shader.addShaderFromSourceCode(QOpenGLShader::Vertex,
+        "#version 450 core\n"
+        "layout (location = 0) in vec3 position;\n"
+        "void main(){\n"
+        "    gl_Position = vec4(position, 1.0f);\n"
+        "}");
+    adt.shader.addShaderFromSourceCode(QOpenGLShader::Fragment,
+        "#version 450 core\n"
+        "layout (location = 0) out vec4 Frag_Color;\n"
+        "void main(){\n"
+        "    Frag_Color = vec4(1.0f);\n"
+        "}");
+    adt.shader.link();
 }
 
 void MyGLWindow::paintGL()
@@ -55,6 +83,9 @@ void MyGLWindow::paintGL()
     lastTimePoint = currentTime;
 
     //code here
+    adt.shader.bind();
+    glBindVertexArray(adt.vao);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     update();
 }
