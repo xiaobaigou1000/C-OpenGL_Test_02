@@ -46,17 +46,37 @@ void MyGLWindow::initializeGL()
     //code here
     glPrimitiveRestartIndex(0xFFFF);
 
+    std::vector<float> vertices;
+    std::uniform_real_distribution<float> urd(-1.0f, 1.0f);
+
+    for (int i = 0; i < 10; ++i)
+    {
+        vertices.push_back(urd(dre));
+        vertices.push_back(urd(dre));
+        vertices.push_back(urd(dre));
+    }
+
+    std::vector<float> colors;
+    std::uniform_real_distribution<float> colorDist(0.0f, 1.0f);
+    for (size_t i = 0; i < 10; i++)
+    {
+        colors.push_back(colorDist(dre));
+        colors.push_back(colorDist(dre));
+        colors.push_back(colorDist(dre));
+    }
+
     glGenBuffers(1, &adt.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, adt.vbo);
-    glBufferStorage(GL_ARRAY_BUFFER, adt.vertices.size() * sizeof(float), nullptr, GL_MAP_WRITE_BIT);
-    float* ptr = static_cast<float*>(glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY));
-    memcpy(ptr, adt.vertices.data(), adt.vertices.size() * sizeof(float));
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+    glBufferStorage(GL_ARRAY_BUFFER, (vertices.size() + colors.size()) * sizeof(float), nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
+    glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), colors.size() * sizeof(float), colors.data());
     glGenVertexArrays(1, &adt.vao);
     glBindVertexArray(adt.vao);
     glBindBuffer(GL_ARRAY_BUFFER, adt.vbo);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(vertices.size() * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     adt.shader.create();
     adt.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/pointsGeometry.vert");
@@ -77,7 +97,7 @@ void MyGLWindow::paintGL()
     adt.shader.bind();
     glUniform4f(adt.shader.uniformLocation("color"), 0.0f, 1.0f, 0.0f, 1.0f);
     glBindVertexArray(adt.vao);
-    glDrawArrays(GL_POINTS, 0, 4);
+    glDrawArrays(GL_POINTS, 0, 10);
 
     update();
 }

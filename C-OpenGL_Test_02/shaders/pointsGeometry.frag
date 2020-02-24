@@ -1,9 +1,9 @@
 #version 450 core
 layout (location = 0) out vec4 Frag_Color;
 
-uniform vec4 color;
+in vec3 color;
 
 void main()
 {
-    Frag_Color = color;
+    Frag_Color = vec4(color, 1.0f);
 }
