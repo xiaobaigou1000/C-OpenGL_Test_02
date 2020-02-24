@@ -69,7 +69,10 @@ void MyGLWindow::initializeGL()
         "#version 450 core\n"
         "layout (location = 0) out vec4 Frag_Color;\n"
         "void main(){\n"
-        "    Frag_Color = vec4(1.0f);\n"
+        "    if(gl_FragCoord.x < 1920/2)\n"
+        "        Frag_Color = vec4(1.0, 0.0, 0.0, 1.0);\n"
+        "    else\n"
+        "        Frag_Color = vec4(0.0, 1.0, 0.0, 1.0);\n"
         "}");
     adt.shader.link();
 }
