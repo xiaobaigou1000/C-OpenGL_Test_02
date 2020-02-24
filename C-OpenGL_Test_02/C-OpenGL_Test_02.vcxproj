@@ -103,15 +103,23 @@
     <ClInclude Include="SimpleTextureBox.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\advancedData.frag" />
+    <None Include="shaders\advancedData.vert" />
     <None Include="shaders\boxShader.frag" />
     <None Include="shaders\boxShader.vert" />
     <None Include="shaders\cubeMapShader.frag" />
     <None Include="shaders\cubeMapShader.vert" />
     <None Include="shaders\environmentMapping.frag" />
+    <None Include="shaders\environmentMapping.vert" />
+    <None Include="shaders\fboShader.frag" />
+    <None Include="shaders\fboShader.vert" />
     <None Include="shaders\lightBox.frag" />
     <None Include="shaders\model.frag" />
     <None Include="shaders\model.vert" />
     <None Include="shaders\modelCheckDepth.frag" />
+    <None Include="shaders\pointsGeometry.frag" />
+    <None Include="shaders\pointsGeometry.geom" />
+    <None Include="shaders\pointsGeometry.vert" />
     <None Include="shaders\postProcess.frag" />
     <None Include="shaders\postProcess.vert" />
     <None Include="shaders\singleColor.frag" />

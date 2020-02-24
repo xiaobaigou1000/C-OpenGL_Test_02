@@ -59,21 +59,9 @@ void MyGLWindow::initializeGL()
     glEnableVertexAttribArray(0);
 
     adt.shader.create();
-    adt.shader.addShaderFromSourceCode(QOpenGLShader::Vertex,
-        "#version 450 core\n"
-        "layout (location = 0) in vec3 position;\n"
-        "void main(){\n"
-        "    gl_Position = vec4(position, 1.0f);\n"
-        "}");
-    adt.shader.addShaderFromSourceCode(QOpenGLShader::Fragment,
-        "#version 450 core\n"
-        "layout (location = 0) out vec4 Frag_Color;\n"
-        "void main(){\n"
-        "    if(gl_FragCoord.x < 1920/2)\n"
-        "        Frag_Color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-        "    else\n"
-        "        Frag_Color = vec4(0.0, 1.0, 0.0, 1.0);\n"
-        "}");
+    adt.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/pointsGeometry.vert");
+    adt.shader.addShaderFromSourceFile(QOpenGLShader::Geometry, "./shaders/pointsGeometry.geom");
+    adt.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/pointsGeometry.frag");
     adt.shader.link();
 }
 
@@ -87,8 +75,9 @@ void MyGLWindow::paintGL()
 
     //code here
     adt.shader.bind();
+    glUniform4f(adt.shader.uniformLocation("color"), 0.0f, 1.0f, 0.0f, 1.0f);
     glBindVertexArray(adt.vao);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDrawArrays(GL_POINTS, 0, 4);
 
     update();
 }

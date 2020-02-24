@@ -120,5 +120,29 @@
     <None Include="shaders\environmentMapping.frag">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\advancedData.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\advancedData.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\environmentMapping.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\fboShader.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\fboShader.vert">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\pointsGeometry.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\pointsGeometry.geom">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\pointsGeometry.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
