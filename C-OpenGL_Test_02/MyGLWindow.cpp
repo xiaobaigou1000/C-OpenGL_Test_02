@@ -48,9 +48,9 @@ void MyGLWindow::initializeGL()
     suit.init();
 
     suitShader.create();
-    suitShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/modelGeometry.vert");
-    suitShader.addShaderFromSourceFile(QOpenGLShader::Geometry, "./shaders/modelGeometry.geom");
-    suitShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/modelGeometry.frag");
+    suitShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/modelNormal.vert");
+    suitShader.addShaderFromSourceFile(QOpenGLShader::Geometry, "./shaders/modelNormal.geom");
+    suitShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/modelNormal.frag");
     suitShader.bind();
 }
 
@@ -68,7 +68,7 @@ void MyGLWindow::paintGL()
     //code here
     suitShader.bind();
     glUniformMatrix4fv(suitShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * model));
-    glUniform1f(suitShader.uniformLocation("explodeConst"), explodeConst);
+    glUniformMatrix3fv(suitShader.uniformLocation("normalMat"), 1, GL_FALSE, value_ptr(mat3(transpose(inverse(model)))));
     suit.draw(&suitShader);
 
     update();

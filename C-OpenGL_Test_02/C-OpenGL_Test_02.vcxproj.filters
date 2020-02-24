@@ -153,5 +153,14 @@
     <None Include="shaders\modelGeometry.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\modelNormal.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\modelNormal.geom">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\modelNormal.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
