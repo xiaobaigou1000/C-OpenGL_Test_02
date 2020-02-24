@@ -117,6 +117,9 @@
     <None Include="shaders\model.frag" />
     <None Include="shaders\model.vert" />
     <None Include="shaders\modelCheckDepth.frag" />
+    <None Include="shaders\modelGeometry.frag" />
+    <None Include="shaders\modelGeometry.geom" />
+    <None Include="shaders\modelGeometry.vert" />
     <None Include="shaders\pointsGeometry.frag" />
     <None Include="shaders\pointsGeometry.geom" />
     <None Include="shaders\pointsGeometry.vert" />

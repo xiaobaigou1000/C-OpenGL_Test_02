@@ -144,5 +144,14 @@
     <None Include="shaders\pointsGeometry.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\modelGeometry.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\modelGeometry.geom">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\modelGeometry.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
