@@ -29,24 +29,13 @@ private:
     std::chrono::steady_clock::time_point lastTimePoint;
     std::chrono::steady_clock::time_point programBeginPoint;
     //code here
-    struct InstanceDraw
+
+    struct Asteroid
     {
-        unsigned int vao, vbo;
+        Model planet;
+        Model rocks;
         QOpenGLShaderProgram shader;
-        unsigned int slowVbo;
-
-        constexpr static std::array<float, 233> vertices
-        {
-            // positions     // colors
-            -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-             0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-            -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
-
-            -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
-             0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
-             0.05f,  0.05f,  0.0f, 1.0f, 1.0f
-        };
     };
 
-    InstanceDraw instances;
+    Asteroid instanceModel;
 };

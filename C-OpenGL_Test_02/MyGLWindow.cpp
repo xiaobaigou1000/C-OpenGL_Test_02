@@ -45,40 +45,11 @@ void MyGLWindow::initializeGL()
     glDepthFunc(GL_LEQUAL);
 
     //code here
-    glGenBuffers(1, &instances.vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, instances.vbo);
-    glBufferStorage(GL_ARRAY_BUFFER, instances.vertices.size() * sizeof(float), instances.vertices.data(), 0);
-    glGenVertexArrays(1, &instances.vao);
-    glBindVertexArray(instances.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, instances.vbo);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    instanceModel.planet.loadModel("./models/planet/planet.obj");
+    instanceModel.rocks.loadModel("./models/rock/rock.obj");
+    instanceModel.planet.init();
+    instanceModel.rocks.init();
 
-    instances.shader.create();
-    instances.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/instanceDrawTriangle.vert");
-    instances.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/instanceDrawTriangle.frag");
-    instances.shader.link();
-
-    std::array<vec2, 100> offsets;
-    int index = 0;
-    float off = 0.1f;
-    for (int i = -10; i < 10; i+=2)
-    {
-        for (int j = -10; j < 10; j+=2)
-        {
-            offsets[index++] = vec2(static_cast<float>(j) / 10.0f + off, static_cast<float>(i) / 10.0f + off);
-        }
-    }
-    glGenBuffers(1, &instances.slowVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, instances.slowVbo);
-    glBufferStorage(GL_ARRAY_BUFFER, offsets.size() * sizeof(vec2), offsets.data(), 0);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-    glEnableVertexAttribArray(2);
-    glVertexAttribDivisor(2, 1);
-    instances.shader.bind();
-    glUniform2fv(instances.shader.uniformLocation("offsets"), 100, (float*)(offsets.data()));
 }
 
 void MyGLWindow::paintGL()
@@ -90,9 +61,6 @@ void MyGLWindow::paintGL()
     lastTimePoint = currentTime;
 
     //code here
-    instances.shader.bind();
-    glBindVertexArray(instances.vao);
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
 
     update();
 }
