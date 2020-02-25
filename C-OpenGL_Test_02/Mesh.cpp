@@ -57,10 +57,13 @@ void Mesh::init()
     glBindVertexArray(0);
 }
 
-void Mesh::draw(QOpenGLShaderProgram* shader)
+void Mesh::bind()
 {
     glBindVertexArray(VAO);
-    setShaderVariables(shader);
+}
+
+void Mesh::draw()
+{
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
@@ -72,12 +75,22 @@ void Mesh::setShaderVariables(QOpenGLShaderProgram* shader)
     {
         std::string number;
         glActiveTexture(GL_TEXTURE0 + i);
-        std::string texName = textures[i]->bind();
-        if (texName == "texture_diffuse")
+        textures[i]->bind();
+        TextureType currentTexType = textures[i]->type;
+        std::string texName;
+        if (currentTexType == TextureType::Diffuse)
+        {
+            texName = "texture_diffuse";
+        }
+        else
+        {
+            texName = "texture_specular";
+        }
+        if (currentTexType == TextureType::Diffuse)
             number = std::to_string(diffuseNum++);
-        else if (texName == std::to_string(specularNum++))
+        else if (currentTexType == TextureType::Specular)
             number = std::to_string(specularNum++);
-        glUniform1i(shader->uniformLocation(QString::fromStdString("material." + texName + number)), i);
+        glUniform1i(shader->uniformLocation(QString::fromStdString(texName + number)), i);
     }
     glActiveTexture(GL_TEXTURE0);
 }

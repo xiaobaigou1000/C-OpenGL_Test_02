@@ -18,11 +18,16 @@ public:
         glm::vec3 normal;
         glm::vec2 texCoords;
     };
+    
+    enum class TextureType
+    {
+        Diffuse, Specular
+    };
 
     struct Texture
     {
         QOpenGLTexture* tex = nullptr;
-        std::string type;
+        TextureType type;
         std::string path;
 
         void init()
@@ -32,7 +37,7 @@ public:
             tex = new QOpenGLTexture(QImage(QString::fromStdString(path)).mirrored());
         }
 
-        std::string bind()
+        TextureType bind()
         {
             tex->bind();
             return type;
@@ -43,7 +48,8 @@ public:
     Mesh(std::vector<Vertex>&& vertices, std::vector<unsigned int>&& indices, std::vector<std::shared_ptr<Texture>>&& textures);
 
     void init();
-    void draw(QOpenGLShaderProgram* shader);
+    void bind();
+    void draw();
     void setShaderVariables(QOpenGLShaderProgram* shader);
 
 private:

@@ -10,5 +10,6 @@ uniform mat4 MV;
 
 void main()
 {
-    gl_Position = MV * 
+    gl_Position = MV * vec4(position, 1.0);
+    TexCoords = inTexCoords;
 }

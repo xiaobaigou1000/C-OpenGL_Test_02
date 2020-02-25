@@ -24,7 +24,18 @@ void Model::draw(QOpenGLShaderProgram* shader)
 {
     for (auto& i : meshes)
     {
-        i.draw(shader);
+        i.bind();
+        i.setShaderVariables(shader);
+        i.draw();
+    }
+}
+
+void Model::setAdditionalVertexAttribute(std::function<void()> func)
+{
+    for (auto& i : meshes)
+    {
+        i.bind();
+        func();
     }
 }
 
@@ -105,8 +116,8 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     if (mesh->mMaterialIndex >= 0)
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        std::vector<std::shared_ptr<Mesh::Texture>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-        std::vector<std::shared_ptr<Mesh::Texture>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+        std::vector<std::shared_ptr<Mesh::Texture>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, Mesh::TextureType::Diffuse);
+        std::vector<std::shared_ptr<Mesh::Texture>> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, Mesh::TextureType::Specular);
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }
@@ -114,7 +125,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(std::move(vertices), std::move(indices), std::move(textures));
 }
 
-std::vector<std::shared_ptr<Mesh::Texture>> Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName)
+std::vector<std::shared_ptr<Mesh::Texture>> Model::loadMaterialTextures(aiMaterial* material, aiTextureType type, Mesh::TextureType texType)
 {
     std::vector<std::shared_ptr<Mesh::Texture>> textures;
     for (unsigned int i = 0; i < material->GetTextureCount(type); i++)
@@ -139,7 +150,7 @@ std::vector<std::shared_ptr<Mesh::Texture>> Model::loadMaterialTextures(aiMateri
         if (!skip)
         {
             Mesh::Texture* texture = new Mesh::Texture;
-            texture->type = typeName;
+            texture->type = texType;
             texture->path = path;
             std::shared_ptr<Mesh::Texture> toPush{ texture };
             texture_loaded.push_back(toPush);

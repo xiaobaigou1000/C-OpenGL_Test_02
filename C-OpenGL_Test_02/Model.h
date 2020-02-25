@@ -3,6 +3,7 @@
 #include<glm.hpp>
 #include<string>
 #include<vector>
+#include<functional>
 #include<assimp/Importer.hpp>
 #include<assimp/scene.h>
 #include<assimp/postprocess.h>
@@ -17,6 +18,7 @@ public:
     void loadModel(std::string path);
     void init();
     void draw(QOpenGLShaderProgram* shader);
+    void setAdditionalVertexAttribute(std::function<void()> func);
 private:
     std::string path;
     std::vector<Mesh> meshes;
@@ -25,5 +27,5 @@ private:
 
     void processNode(aiNode* node,const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<std::shared_ptr<Mesh::Texture>> loadMaterialTextures(aiMaterial* material, aiTextureType type, std::string typeName);
+    std::vector<std::shared_ptr<Mesh::Texture>> loadMaterialTextures(aiMaterial* material, aiTextureType type, Mesh::TextureType texType);
 };
