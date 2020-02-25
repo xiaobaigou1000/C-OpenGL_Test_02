@@ -29,6 +29,23 @@ private:
     std::chrono::steady_clock::time_point lastTimePoint;
     std::chrono::steady_clock::time_point programBeginPoint;
     //code here
-    Model suit;
-    QOpenGLShaderProgram suitShader;
+    struct InstanceDraw
+    {
+        unsigned int vao, vbo;
+        QOpenGLShaderProgram shader;
+
+        constexpr static std::array<float, 233> vertices
+        {
+            // positions     // colors
+            -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+             0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+            -0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+
+            -0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+             0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+             0.05f,  0.05f,  0.0f, 1.0f, 1.0f
+        };
+    };
+
+    InstanceDraw instances;
 };

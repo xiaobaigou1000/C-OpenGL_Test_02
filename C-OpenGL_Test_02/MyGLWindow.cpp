@@ -11,6 +11,7 @@ using std::chrono::duration;
 using glm::mat4;
 using glm::mat3;
 using glm::vec3;
+using glm::vec2;
 using glm::translate;
 using glm::scale;
 using glm::value_ptr;
@@ -44,14 +45,34 @@ void MyGLWindow::initializeGL()
     glDepthFunc(GL_LEQUAL);
 
     //code here
-    suit.loadModel("./models/nanosuit/nanosuit.obj");
-    suit.init();
+    glGenBuffers(1, &instances.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, instances.vbo);
+    glBufferStorage(GL_ARRAY_BUFFER, instances.vertices.size() * sizeof(float), instances.vertices.data(), 0);
+    glGenVertexArrays(1, &instances.vao);
+    glBindVertexArray(instances.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, instances.vbo);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
-    suitShader.create();
-    suitShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/modelNormal.vert");
-    suitShader.addShaderFromSourceFile(QOpenGLShader::Geometry, "./shaders/modelNormal.geom");
-    suitShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/modelNormal.frag");
-    suitShader.bind();
+    instances.shader.create();
+    instances.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/instanceDrawTriangle.vert");
+    instances.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/instanceDrawTriangle.frag");
+    instances.shader.link();
+
+    std::array<vec2, 100> offsets;
+    int index = 0;
+    float off = 0.1f;
+    for (int i = -10; i < 10; i+=2)
+    {
+        for (int j = -10; j < 10; j+=2)
+        {
+            offsets[index++] = vec2(static_cast<float>(j) / 10.0f + off, static_cast<float>(i) / 10.0f + off);
+        }
+    }
+    instances.shader.bind();
+    glUniform2fv(instances.shader.uniformLocation("offsets"), 100, (float*)(offsets.data()));
 }
 
 void MyGLWindow::paintGL()
@@ -62,14 +83,10 @@ void MyGLWindow::paintGL()
     auto timeFromBeginPoint = duration_cast<duration<float>>(currentTime - programBeginPoint).count();
     lastTimePoint = currentTime;
 
-    mat4 model = translate(mat4{ 1.0f }, vec3(-1.7f, -1.7f, -1.7f)) * scale(mat4{ 1.0f }, vec3(0.2f, 0.2f, 0.2f));
-
-    float explodeConst = (sin(timeFromBeginPoint) + 1.0f)/2.0f;
     //code here
-    suitShader.bind();
-    glUniformMatrix4fv(suitShader.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat() * model));
-    glUniformMatrix3fv(suitShader.uniformLocation("normalMat"), 1, GL_FALSE, value_ptr(mat3(transpose(inverse(model)))));
-    suit.draw(&suitShader);
+    instances.shader.bind();
+    glBindVertexArray(instances.vao);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
 
     update();
 }

@@ -113,6 +113,8 @@
     <None Include="shaders\environmentMapping.vert" />
     <None Include="shaders\fboShader.frag" />
     <None Include="shaders\fboShader.vert" />
+    <None Include="shaders\instanceDrawTriangle.frag" />
+    <None Include="shaders\instanceDrawTriangle.vert" />
     <None Include="shaders\lightBox.frag" />
     <None Include="shaders\model.frag" />
     <None Include="shaders\model.vert" />
