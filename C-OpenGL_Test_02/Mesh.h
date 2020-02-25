@@ -18,7 +18,7 @@ public:
         glm::vec3 normal;
         glm::vec2 texCoords;
     };
-    
+
     enum class TextureType
     {
         Diffuse, Specular

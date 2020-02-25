@@ -50,7 +50,7 @@ void SimpleTextureBox::draw()
 
 void SimpleTextureBox::resize(int w, int h)
 {
-    orthogonalMat = glm::ortho(0.0f, 1.0f, 0.0f, (((float)tex->height() / (float)tex->width()) * (float(h)/float(w))), -0.5f, 0.5f);
+    orthogonalMat = glm::ortho(0.0f, 1.0f, 0.0f, (((float)tex->height() / (float)tex->width()) * (float(h) / float(w))), -0.5f, 0.5f);
     shader.bind();
     glUniformMatrix4fv(shader.uniformLocation("translateMat"), 1, GL_FALSE, glm::value_ptr(orthogonalMat * scaleMat));
 }

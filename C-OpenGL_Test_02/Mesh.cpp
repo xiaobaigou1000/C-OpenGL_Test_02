@@ -30,7 +30,7 @@ void Mesh::init()
     if (VBO == 0)
     {
         glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER,VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
     }
 
@@ -71,12 +71,13 @@ void Mesh::setShaderVariables(QOpenGLShaderProgram* shader)
 {
     int diffuseNum = 1;
     int specularNum = 1;
-    for (unsigned int i = 0; i < textures.size(); ++i)
+    int texIndex = 0;
+    for (auto& tex : textures)
     {
         std::string number;
-        glActiveTexture(GL_TEXTURE0 + i);
-        textures[i]->bind();
-        TextureType currentTexType = textures[i]->type;
+        glActiveTexture(GL_TEXTURE0 + texIndex);
+        tex->bind();
+        TextureType currentTexType = tex->type;
         std::string texName;
         if (currentTexType == TextureType::Diffuse)
         {
@@ -90,7 +91,8 @@ void Mesh::setShaderVariables(QOpenGLShaderProgram* shader)
             number = std::to_string(diffuseNum++);
         else if (currentTexType == TextureType::Specular)
             number = std::to_string(specularNum++);
-        glUniform1i(shader->uniformLocation(QString::fromStdString(texName + number)), i);
+        glUniform1i(shader->uniformLocation(QString::fromStdString(texName + number)), texIndex);
+        ++texIndex;
     }
     glActiveTexture(GL_TEXTURE0);
 }

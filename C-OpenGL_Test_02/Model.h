@@ -25,7 +25,7 @@ private:
     std::string directory;
     std::vector<std::shared_ptr<Mesh::Texture>> texture_loaded;
 
-    void processNode(aiNode* node,const aiScene* scene);
+    void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
     std::vector<std::shared_ptr<Mesh::Texture>> loadMaterialTextures(aiMaterial* material, aiTextureType type, Mesh::TextureType texType);
 };
