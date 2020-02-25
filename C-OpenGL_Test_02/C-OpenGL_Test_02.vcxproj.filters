@@ -174,5 +174,11 @@
     <None Include="shaders\instanceModel.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\fboOutput.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\fboOutput.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

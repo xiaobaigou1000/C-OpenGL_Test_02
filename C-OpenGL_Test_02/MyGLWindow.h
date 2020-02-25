@@ -29,15 +29,55 @@ private:
     std::chrono::steady_clock::time_point lastTimePoint;
     std::chrono::steady_clock::time_point programBeginPoint;
     //code here
-
-    struct Asteroid
+    struct TriangleStripBox
     {
-        Model planet;
-        Model rocks;
-        QOpenGLShaderProgram shader;
-        std::vector<glm::mat4> rocksModelMats;
-        unsigned int modelMatVbo;
+        unsigned int vao, vbo, ebo;
+        constexpr static std::array<float, 24> vertices
+        {
+            -1.0, -1.0, -1.0,
+            -1.0, -1.0,  1.0,
+            -1.0,  1.0, -1.0,
+            -1.0,  1.0,  1.0,
+             1.0, -1.0, -1.0,
+             1.0, -1.0,  1.0,
+             1.0,  1.0, -1.0,
+             1.0,  1.0,  1.0,
+        };
+
+        constexpr static std::array<unsigned int, 17> indices
+        {
+            0, 1, 2, 3, 6, 7, 4, 5,
+            0xFFFF,
+            2, 6, 0, 4, 1, 5, 3, 7
+        };
     };
 
-    Asteroid instanceModel;
+    TriangleStripBox tsBox;
+    QOpenGLShaderProgram singleColor;
+
+    struct AntiAliasing
+    {
+        unsigned int fbo;
+        unsigned int depthTex, colorTex;
+    };
+
+    AntiAliasing antiAliasing;
+
+    struct AAOutput
+    {
+        unsigned int vao, vbo, fbo;
+        unsigned int colorTex;
+
+        constexpr static std::array<float, 20> vertices
+        {
+            -1,-1,0,0,0,
+            1,-1,0,1,0,
+            -1,1,0,0,1,
+            1,1,0,1,1
+        };
+    };
+
+    AAOutput outFrame;
+
+    QOpenGLShaderProgram outShader;
 };

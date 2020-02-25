@@ -111,6 +111,8 @@
     <None Include="shaders\cubeMapShader.vert" />
     <None Include="shaders\environmentMapping.frag" />
     <None Include="shaders\environmentMapping.vert" />
+    <None Include="shaders\fboOutput.frag" />
+    <None Include="shaders\fboOutput.vert" />
     <None Include="shaders\fboShader.frag" />
     <None Include="shaders\fboShader.vert" />
     <None Include="shaders\instanceDrawTriangle.frag" />
