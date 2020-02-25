@@ -115,6 +115,8 @@
     <None Include="shaders\fboShader.vert" />
     <None Include="shaders\instanceDrawTriangle.frag" />
     <None Include="shaders\instanceDrawTriangle.vert" />
+    <None Include="shaders\instanceModel.frag" />
+    <None Include="shaders\instanceModel.vert" />
     <None Include="shaders\lightBox.frag" />
     <None Include="shaders\model.frag" />
     <None Include="shaders\model.vert" />

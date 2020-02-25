@@ -20,13 +20,23 @@ void Model::loadModel(std::string path)
     processNode(scene->mRootNode, scene);
 }
 
-void Model::draw(QOpenGLShaderProgram* shader)
+void Model::drawWithoutShaderBinding(QOpenGLShaderProgram* shader)
 {
     for (auto& i : meshes)
     {
         i.bind();
         i.setShaderVariables(shader);
         i.draw();
+    }
+}
+
+void Model::instancedDrawWithoutShaderBinding(QOpenGLShaderProgram* shader, unsigned int instanceNum)
+{
+    for (auto& i : meshes)
+    {
+        i.bind();
+        i.setShaderVariables(shader);
+        i.glDrawElementsInstanced(GL_TRIANGLES, i.indicesNum, GL_UNSIGNED_INT, 0, instanceNum);
     }
 }
 

@@ -168,5 +168,11 @@
     <None Include="shaders\instanceDrawTriangle.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\instanceModel.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\instanceModel.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

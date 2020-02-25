@@ -7,7 +7,7 @@
 #include<string>
 #include<memory>
 
-class Mesh :protected QOpenGLFunctions_4_5_Core
+class Mesh :public QOpenGLFunctions_4_5_Core
 {
 public:
     Mesh(Mesh&& from)noexcept;
@@ -52,6 +52,7 @@ public:
     void draw();
     void setShaderVariables(QOpenGLShaderProgram* shader);
 
+    unsigned int indicesNum;
 private:
     unsigned int VAO, VBO, EBO;
     std::vector<Vertex> vertices;

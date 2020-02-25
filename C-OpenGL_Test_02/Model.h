@@ -17,7 +17,8 @@ public:
 
     void loadModel(std::string path);
     void init();
-    void draw(QOpenGLShaderProgram* shader);
+    void drawWithoutShaderBinding(QOpenGLShaderProgram* shader);
+    void instancedDrawWithoutShaderBinding(QOpenGLShaderProgram* shader, unsigned int instanceNum);
     void setAdditionalVertexAttribute(std::function<void()> func);
 private:
     std::string path;

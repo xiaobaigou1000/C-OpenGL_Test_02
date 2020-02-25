@@ -10,7 +10,7 @@
 #include"Camera.h"
 #include"Model.h"
 
-class MyGLWindow : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
+class MyGLWindow : public QOpenGLWidget, public QOpenGLFunctions_4_5_Core
 {
     Q_OBJECT
 
@@ -35,6 +35,8 @@ private:
         Model planet;
         Model rocks;
         QOpenGLShaderProgram shader;
+        std::vector<glm::mat4> rocksModelMats;
+        unsigned int modelMatVbo;
     };
 
     Asteroid instanceModel;
