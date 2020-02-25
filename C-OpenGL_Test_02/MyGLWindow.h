@@ -33,6 +33,7 @@ private:
     {
         unsigned int vao, vbo;
         QOpenGLShaderProgram shader;
+        unsigned int slowVbo;
 
         constexpr static std::array<float, 233> vertices
         {

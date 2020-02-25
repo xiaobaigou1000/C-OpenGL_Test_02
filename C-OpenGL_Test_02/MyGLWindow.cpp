@@ -71,6 +71,12 @@ void MyGLWindow::initializeGL()
             offsets[index++] = vec2(static_cast<float>(j) / 10.0f + off, static_cast<float>(i) / 10.0f + off);
         }
     }
+    glGenBuffers(1, &instances.slowVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, instances.slowVbo);
+    glBufferStorage(GL_ARRAY_BUFFER, offsets.size() * sizeof(vec2), offsets.data(), 0);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
+    glEnableVertexAttribArray(2);
+    glVertexAttribDivisor(2, 1);
     instances.shader.bind();
     glUniform2fv(instances.shader.uniformLocation("offsets"), 100, (float*)(offsets.data()));
 }
@@ -103,11 +109,10 @@ void MyGLWindow::mouseMoveEvent(QMouseEvent* event)
     QCursor myCursor = cursor();
     myCursor.setPos(mapToGlobal({ width() / 2, height() / 2 }));
     setCursor(myCursor);
-    if (std::abs(xAxisMove) > 150.0f || std::abs(yAxisMove) > 150.0f)
+    if (std::abs(xAxisMove) < 150.0f && std::abs(yAxisMove) < 150.0f)
     {
-        return;
+        mainCamera.processMouseMovement(xAxisMove, yAxisMove);
     }
-    mainCamera.processMouseMovement(xAxisMove, yAxisMove);
 }
 
 void MyGLWindow::keyPressEvent(QKeyEvent* event)
