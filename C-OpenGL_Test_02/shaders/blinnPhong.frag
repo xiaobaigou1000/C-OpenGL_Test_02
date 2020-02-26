@@ -11,10 +11,13 @@ in VS_OUT
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 uniform sampler2D floorTex;
-float gammaCorrectParameter = 1.0 / 2.2;
+const float gammaCorrectParameter = 1.0f / 2.2f;
 
 void main()
 {
+    float distance = length(lightPos - fs_in.FragPos);
+    float attenuation = 1.0 / (distance * distance);
+
     vec3 color = texture(floorTex, fs_in.TexCoords).rgb;
     vec3 ambient = 0.05 * color;
     
@@ -29,6 +32,7 @@ void main()
     vec3 specular = vec3(0.3) * spec;
 
     vec3 result = ambient + diffuse + specular;
-    result = pow(result, vec3(gammaCorrectParameter));
+    // result *= attenuation;
+    // result = pow(result, vec3(gammaCorrectParameter));
     Frag_Color = vec4(result, 1.0);
 }

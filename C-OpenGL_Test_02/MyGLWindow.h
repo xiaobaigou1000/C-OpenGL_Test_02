@@ -52,34 +52,33 @@ private:
         };
     };
 
-    TriangleStripBox tsBox;
-    QOpenGLShaderProgram singleColor;
+    TriangleStripBox box;
 
-    struct AntiAliasing
+    struct DrawFrame
     {
-        unsigned int fbo;
-        unsigned int depthTex, colorTex;
+        unsigned int fbo, depthTex, colorTex;
     };
 
-    AntiAliasing antiAliasing;
-
-    struct AAOutput
+    DrawFrame frame;
+    
+    struct Square
     {
-        unsigned int vao, vbo, fbo;
-        unsigned int colorTex;
-
-        constexpr static std::array<float, 20> vertices
+        QOpenGLShaderProgram shader;
+        QOpenGLShaderProgram gammaCorrection;
+        QOpenGLShaderProgram inverseGammaCorrection;
+        unsigned int vao, vbo;
+        constexpr static std::array<float, 24> vertices
         {
-            -1,-1,0,0,0,
-            1,-1,0,1,0,
-            -1,1,0,0,1,
-            1,1,0,1,1
+            //pos     //color
+            -1,-1,0,  0,0,0,
+            1,-1,0,   0,0,0,
+            -1,1,0,   1,1,1,
+            1,1,0,    1,1,1
         };
     };
 
-    AAOutput outFrame;
-
-    QOpenGLShaderProgram outShader;
+    
+    Square square;
 
     struct BlinnPhong
     {
