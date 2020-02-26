@@ -24,7 +24,7 @@ using glm::lookAt;
 MyGLWindow::MyGLWindow(QWidget* parent)
     : QOpenGLWidget(parent)
 {
-    resize(1920, 1080);
+    resize(1200, 800);
     setWindowFlags(Qt::FramelessWindowHint);
     setCursor(Qt::BlankCursor);
     setMouseTracking(true);
@@ -89,7 +89,7 @@ void MyGLWindow::initializeGL()
     glBindFramebuffer(GL_FRAMEBUFFER, outFrame.fbo);
     glGenTextures(1, &outFrame.colorTex);
     glBindTexture(GL_TEXTURE_2D, outFrame.colorTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width(), height(), 0, GL_RGB, GL_UNSIGNED_INT, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, width(), height(), 0, GL_RGB, GL_UNSIGNED_INT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outFrame.colorTex, 0);
