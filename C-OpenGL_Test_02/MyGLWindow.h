@@ -54,47 +54,4 @@ private:
 
     TriangleStripBox box;
 
-    struct DrawFrame
-    {
-        unsigned int fbo, depthTex, colorTex;
-    };
-
-    DrawFrame frame;
-    
-    struct Square
-    {
-        QOpenGLShaderProgram shader;
-        QOpenGLShaderProgram gammaCorrection;
-        QOpenGLShaderProgram inverseGammaCorrection;
-        unsigned int vao, vbo;
-        constexpr static std::array<float, 24> vertices
-        {
-            //pos     //color
-            -1,-1,0,  0,0,0,
-            1,-1,0,   0,0,0,
-            -1,1,0,   1,1,1,
-            1,1,0,    1,1,1
-        };
-    };
-
-    
-    Square square;
-
-    struct BlinnPhong
-    {
-        unsigned int vao, vbo;
-        unsigned int tex;
-        QOpenGLShaderProgram shader;
-
-        constexpr static std::array<float, 32> vertices
-        {
-            //position             //normal           //texCoords
-           -10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f,
-            10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   10.0f, 10.0f,
-           -10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-            10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,   10.0f,  0.0f
-        };
-    };
-
-    BlinnPhong bp;
 };

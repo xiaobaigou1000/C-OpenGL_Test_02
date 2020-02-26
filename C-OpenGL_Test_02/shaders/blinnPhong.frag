@@ -32,7 +32,7 @@ void main()
     vec3 specular = vec3(0.3) * spec;
 
     vec3 result = ambient + diffuse + specular;
-    // result *= attenuation;
+    result *= attenuation;
     // result = pow(result, vec3(gammaCorrectParameter));
     Frag_Color = vec4(result, 1.0);
 }
