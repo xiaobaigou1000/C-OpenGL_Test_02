@@ -45,6 +45,8 @@ void MyGLWindow::initializeGL()
     glDepthFunc(GL_LEQUAL);
 
     //code here
+
+    //set MSAA
     glPrimitiveRestartIndex(0xFFFF);
     glEnable(GL_PRIMITIVE_RESTART);
     glGenVertexArrays(1, &tsBox.vao);
@@ -113,6 +115,30 @@ void MyGLWindow::initializeGL()
     outShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/fboOutput.vert");
     outShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/fboOutput.frag");
     outShader.link();
+
+    //blinn-phong
+    glGenVertexArrays(1, &bp.vao);
+    glGenBuffers(1, &bp.vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, bp.vbo);
+    glBufferStorage(GL_ARRAY_BUFFER, bp.vertices.size() * sizeof(float), bp.vertices.data(), 0);
+    glBindVertexArray(bp.vao);
+    glBindBuffer(GL_ARRAY_BUFFER, bp.vbo);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glBindVertexArray(0);
+
+    bp.tex = std::move(std::unique_ptr<QOpenGLTexture>{new QOpenGLTexture(QImage("./images/wood_floor.jpg").mirrored())});
+    bp.shader.create();
+    bp.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/blinnPhong.vert");
+    bp.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/blinnPhong.frag");
+    bp.shader.link();
+
+    bp.shader.bind();
+    glUniform3f(bp.shader.uniformLocation("lightPos"), 0.0f, 0.0f, 0.0f);
 }
 
 void MyGLWindow::paintGL()
@@ -127,11 +153,16 @@ void MyGLWindow::paintGL()
     glBindFramebuffer(GL_FRAMEBUFFER, antiAliasing.fbo);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    singleColor.bind();
-    glUniform3f(singleColor.uniformLocation("color"), 1.0f, 0.4f, 0.4f);
-    glUniformMatrix4fv(singleColor.uniformLocation("MVP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat()));
-    glBindVertexArray(tsBox.vao);
-    glDrawElements(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_INT, 0);
+    
+    //blinn phong draw
+    bp.shader.bind();
+    glBindVertexArray(bp.vao);
+    glUniformMatrix4fv(bp.shader.uniformLocation("VP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat()));
+    glUniform3fv(bp.shader.uniformLocation("viewPos"), 1, value_ptr(mainCamera.position));
+    glActiveTexture(GL_TEXTURE0);
+    bp.tex->bind();
+    glUniform1i(bp.shader.uniformLocation("floorTex"), 0);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, antiAliasing.fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, outFrame.fbo);

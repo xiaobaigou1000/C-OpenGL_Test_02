@@ -180,5 +180,11 @@
     <None Include="shaders\fboOutput.vert">
       <Filter>Shader</Filter>
     </None>
+    <None Include="shaders\blinnPhong.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="shaders\blinnPhong.vert">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

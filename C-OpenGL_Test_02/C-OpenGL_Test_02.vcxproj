@@ -105,6 +105,8 @@
   <ItemGroup>
     <None Include="shaders\advancedData.frag" />
     <None Include="shaders\advancedData.vert" />
+    <None Include="shaders\blinnPhong.frag" />
+    <None Include="shaders\blinnPhong.vert" />
     <None Include="shaders\boxShader.frag" />
     <None Include="shaders\boxShader.vert" />
     <None Include="shaders\cubeMapShader.frag" />

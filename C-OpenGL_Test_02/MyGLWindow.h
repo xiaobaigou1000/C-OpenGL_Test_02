@@ -80,4 +80,22 @@ private:
     AAOutput outFrame;
 
     QOpenGLShaderProgram outShader;
+
+    struct BlinnPhong
+    {
+        unsigned int vao, vbo;
+        std::unique_ptr<QOpenGLTexture> tex;
+        QOpenGLShaderProgram shader;
+
+        constexpr static std::array<float, 32> vertices
+        {
+            //position             //normal           //texCoords
+           -10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   0.0f, 10.0f,
+            10.0f, -0.5f, -10.0f,  0.0f, 1.0f, 0.0f,   10.0f, 10.0f,
+           -10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+            10.0f, -0.5f,  10.0f,  0.0f, 1.0f, 0.0f,   10.0f,  0.0f
+        };
+    };
+
+    BlinnPhong bp;
 };
