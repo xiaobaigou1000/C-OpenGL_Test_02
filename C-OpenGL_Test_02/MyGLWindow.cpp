@@ -99,7 +99,7 @@ void MyGLWindow::initializeGL()
         qInfo() << "output frame buffer is not complete";
     }
 
-    glGenVertexArrays(1,&outFrame.vao);
+    glGenVertexArrays(1, &outFrame.vao);
     glBindVertexArray(outFrame.vao);
     glGenBuffers(1, &outFrame.vbo);
     glBindBuffer(GL_ARRAY_BUFFER, outFrame.vbo);
@@ -131,7 +131,17 @@ void MyGLWindow::initializeGL()
     glEnableVertexAttribArray(2);
     glBindVertexArray(0);
 
-    bp.tex = std::move(std::unique_ptr<QOpenGLTexture>{new QOpenGLTexture(QImage("./images/wood_floor.jpg").mirrored())});
+    QImage image("./images/wood_floor.jpg");
+    image = image.convertToFormat(QImage::Format_RGBA8888);
+    image = image.mirrored();
+    glGenTextures(1, &bp.tex);
+    glBindTexture(GL_TEXTURE_2D, bp.tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     bp.shader.create();
     bp.shader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/blinnPhong.vert");
     bp.shader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/blinnPhong.frag");
@@ -153,14 +163,14 @@ void MyGLWindow::paintGL()
     glBindFramebuffer(GL_FRAMEBUFFER, antiAliasing.fbo);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
     //blinn phong draw
     bp.shader.bind();
     glBindVertexArray(bp.vao);
     glUniformMatrix4fv(bp.shader.uniformLocation("VP"), 1, GL_FALSE, value_ptr(mainCamera.viewProjectionMat()));
     glUniform3fv(bp.shader.uniformLocation("viewPos"), 1, value_ptr(mainCamera.position));
     glActiveTexture(GL_TEXTURE0);
-    bp.tex->bind();
+    glBindTexture(GL_TEXTURE_2D, bp.tex);
     glUniform1i(bp.shader.uniformLocation("floorTex"), 0);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 

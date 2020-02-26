@@ -84,7 +84,7 @@ private:
     struct BlinnPhong
     {
         unsigned int vao, vbo;
-        std::unique_ptr<QOpenGLTexture> tex;
+        unsigned int tex;
         QOpenGLShaderProgram shader;
 
         constexpr static std::array<float, 32> vertices
