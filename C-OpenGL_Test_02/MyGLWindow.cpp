@@ -43,6 +43,9 @@ void MyGLWindow::initializeGL()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
     //set up box
     glPrimitiveRestartIndex(0xFFFF);
@@ -112,7 +115,7 @@ void MyGLWindow::initializeGL()
     QImage image = QImage("./images/wood_floor.jpg").convertToFormat(QImage::Format_RGBA8888).mirrored();
     glGenTextures(1, &plane.tex);
     glBindTexture(GL_TEXTURE_2D, plane.tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -164,6 +167,7 @@ void MyGLWindow::paintGL()
     //draw from light position
     glBindFramebuffer(GL_FRAMEBUFFER, ldMap.fbo);
     glClear(GL_DEPTH_BUFFER_BIT);
+    glCullFace(GL_FRONT);
     lightMapShader.bind();
     glViewport(0, 0, 1024, 1024);
     float lightNear = 1.0f, lightFar = 7.0f;
@@ -174,6 +178,7 @@ void MyGLWindow::paintGL()
     drawScene();
     glViewport(0, 0, width(), height());
     glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+    glCullFace(GL_BACK);
 
     //draw scene
     testShader.bind();
