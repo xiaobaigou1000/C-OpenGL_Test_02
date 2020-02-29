@@ -25,8 +25,9 @@ using glm::ortho;
 MyGLWindow::MyGLWindow(QWidget* parent)
     : QOpenGLWidget(parent)
 {
-    resize(1200, 800);
+    resize(1920, 1080);
     setCursor(Qt::BlankCursor);
+    setWindowFlag(Qt::FramelessWindowHint);
     setMouseTracking(true);
 }
 
@@ -112,7 +113,7 @@ void MyGLWindow::initializeGL()
     glBindVertexArray(0);
 
     //init plane tex
-    QImage image = QImage("./images/wood_floor.jpg").convertToFormat(QImage::Format_RGBA8888).mirrored();
+    QImage image = QImage("./images/texture_test.jpg").convertToFormat(QImage::Format_RGBA8888).mirrored();
     glGenTextures(1, &plane.tex);
     glBindTexture(GL_TEXTURE_2D, plane.tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
@@ -140,8 +141,8 @@ void MyGLWindow::initializeGL()
 
     //init test shader
     testShader.create();
-    testShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/boxForShadowMapping.vert");
-    testShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/boxForShadowMapping.frag");
+    testShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/normalMapping.vert");
+    testShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/normalMapping.frag");
     testShader.link();
 
     //init light map shader
@@ -149,6 +150,112 @@ void MyGLWindow::initializeGL()
     lightMapShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/lightMapping.vert");
     lightMapShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/emptyFrag.frag");
     lightMapShader.link();
+
+    //init normal map
+    QImage normalImage = QImage("./images/normal_map.png").convertToFormat(QImage::Format_RGBA8888).mirrored();
+    glGenTextures(1, &normalTex);
+    glBindTexture(GL_TEXTURE_2D, normalTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, normalImage.width(), normalImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, normalImage.bits());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    auto caculateTB = [](std::array<vec3,3> vertices,std::array<vec2,3> texCoords)
+        ->std::array<vec3, 2>
+    {
+        vec3 e1 = vertices[1] - vertices[0];
+        vec3 e2 = vertices[2] - vertices[0];
+        float u1 = texCoords[1].x - texCoords[0].x;
+        float u2 = texCoords[2].x - texCoords[0].x;
+        float v1 = texCoords[1].y - texCoords[0].y;
+        float v2 = texCoords[2].y - texCoords[0].y;
+        glm::mat3x2 edgeMat;
+        edgeMat[0] = vec2(e1.x, e2.x);
+        edgeMat[1] = vec2(e1.y, e2.y);
+        edgeMat[2] = vec2(e1.z, e2.z);
+
+        glm::mat2 deltaMat;
+        deltaMat[0] = vec2(u1, u2);
+        deltaMat[1] = vec2(v1, v2);
+
+        glm::mat3x2 tangentMat = glm::inverse(deltaMat) * edgeMat;
+        vec3 t(tangentMat[0].x, tangentMat[1].x, tangentMat[2].x);
+        vec3 b(tangentMat[0].y, tangentMat[1].y, tangentMat[2].y);
+        return std::array<vec3, 2>{t, b};
+    };
+
+    //caculate btn for box
+    {
+        std::vector<vec3> vertices;
+        std::vector<vec2> texCoords;
+        for (auto i = box.vertices.begin(); i != box.vertices.end(); i += 8)
+        {
+            vertices.push_back(vec3(*i, *(i + 1), *(i + 2)));
+            texCoords.push_back(vec2(*(i + 6), *(i + 7)));
+        }
+
+        std::vector<vec3> tangentSpace;
+        for (auto i = 0; i < vertices.size(); i += 3)
+        {
+            std::array<vec3, 3> triangleVert{ vertices[i],vertices[i + 1],vertices[i + 2] };
+            std::array<vec2, 3> tiangleTexCoords{ texCoords[i],texCoords[i + 1],texCoords[i + 2] };
+            auto TB = caculateTB(triangleVert, tiangleTexCoords);
+            tangentSpace.push_back(TB[0]);
+            tangentSpace.push_back(TB[1]);
+            tangentSpace.push_back(TB[0]);
+            tangentSpace.push_back(TB[1]);
+            tangentSpace.push_back(TB[0]);
+            tangentSpace.push_back(TB[1]);
+        }
+
+        glGenBuffers(1, &box.tbnBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, box.tbnBuffer);
+        glBufferData(GL_ARRAY_BUFFER, tangentSpace.size() * sizeof(vec3), tangentSpace.data(), GL_STATIC_DRAW);
+
+        glBindVertexArray(box.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, box.tbnBuffer);
+        glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+        glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(7);
+        glEnableVertexAttribArray(8);
+    }
+
+    //caculate btn for plane
+    {
+        std::vector<vec3> vertices;
+        std::vector<vec2> texCoords;
+        for (auto i = plane.planeVertices.begin(); i != plane.planeVertices.end(); i += 8)
+        {
+            vertices.push_back(vec3(*i, *(i + 1), *(i + 2)));
+            texCoords.push_back(vec2(*(i + 6), *(i + 7)));
+        }
+
+        std::vector<vec3> tangentSpace;
+        for (auto i = 0; i < vertices.size(); i += 3)
+        {
+            std::array<vec3, 3> triangleVert{ vertices[i],vertices[i + 1],vertices[i + 2] };
+            std::array<vec2, 3> tiangleTexCoords{ texCoords[i],texCoords[i + 1],texCoords[i + 2] };
+            auto TB = caculateTB(triangleVert, tiangleTexCoords);
+            tangentSpace.push_back(TB[0]);
+            tangentSpace.push_back(TB[1]);
+            tangentSpace.push_back(TB[0]);
+            tangentSpace.push_back(TB[1]);
+            tangentSpace.push_back(TB[0]);
+            tangentSpace.push_back(TB[1]);
+        }
+
+        glGenBuffers(1, &plane.tbnBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, plane.tbnBuffer);
+        glBufferData(GL_ARRAY_BUFFER, tangentSpace.size() * sizeof(vec3), tangentSpace.data(), GL_STATIC_DRAW);
+
+        glBindVertexArray(plane.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, plane.tbnBuffer);
+        glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+        glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(7);
+        glEnableVertexAttribArray(8);
+    }
 }
 
 void MyGLWindow::paintGL()
@@ -194,6 +301,9 @@ void MyGLWindow::paintGL()
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, ldMap.depthMap);
     glUniform1i(testShader.uniformLocation("shadowMap"), 1);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, normalTex);
+    glUniform1i(testShader.uniformLocation("normalMap"), 2);
     drawScene();
 
     update();

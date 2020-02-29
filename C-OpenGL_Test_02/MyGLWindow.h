@@ -33,6 +33,7 @@ private:
     {
         unsigned int vao, vbo;
         unsigned int modelMatVbo;
+        unsigned int tbnBuffer;
         constexpr static std::array<float, 288> vertices
         {
             // back face
@@ -101,6 +102,7 @@ private:
     {
         unsigned int tex;
         unsigned int vao, vbo;
+        unsigned int tbnBuffer;
         constexpr static std::array<float, 48> planeVertices
         {
             -25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
@@ -114,6 +116,7 @@ private:
     };
 
     TutorialScene plane;
+    unsigned int normalTex;
 
     QOpenGLShaderProgram testShader;
     QOpenGLShaderProgram lightMapShader;
