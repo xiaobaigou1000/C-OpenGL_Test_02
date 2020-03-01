@@ -113,7 +113,7 @@ void MyGLWindow::initializeGL()
     glBindVertexArray(0);
 
     //init plane tex
-    QImage image = QImage("./images/texture_test.jpg").convertToFormat(QImage::Format_RGBA8888).mirrored();
+    QImage image = QImage("./images/bricks.jpg").convertToFormat(QImage::Format_RGBA8888).mirrored();
     glGenTextures(1, &plane.tex);
     glBindTexture(GL_TEXTURE_2D, plane.tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width(), image.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image.bits());
@@ -141,8 +141,8 @@ void MyGLWindow::initializeGL()
 
     //init test shader
     testShader.create();
-    testShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/normalMapping.vert");
-    testShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/normalMapping.frag");
+    testShader.addShaderFromSourceFile(QOpenGLShader::Vertex, "./shaders/parallaxMapping.vert");
+    testShader.addShaderFromSourceFile(QOpenGLShader::Fragment, "./shaders/parallaxMapping.frag");
     testShader.link();
 
     //init light map shader
@@ -152,10 +152,20 @@ void MyGLWindow::initializeGL()
     lightMapShader.link();
 
     //init normal map
-    QImage normalImage = QImage("./images/normal_map.png").convertToFormat(QImage::Format_RGBA8888).mirrored();
+    QImage normalImage = QImage("./images/bricksNormal.png").convertToFormat(QImage::Format_RGBA8888).mirrored();
     glGenTextures(1, &normalTex);
     glBindTexture(GL_TEXTURE_2D, normalTex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, normalImage.width(), normalImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, normalImage.bits());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    //init displacement map
+    QImage displacementImage = QImage("./images/bricks2_disp.jpg").convertToFormat(QImage::Format_RGBA8888).mirrored();
+    glGenTextures(1, &displacementTex);
+    glBindTexture(GL_TEXTURE_2D, displacementTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, displacementImage.width(), displacementImage.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, displacementImage.bits());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -295,6 +305,7 @@ void MyGLWindow::paintGL()
     glUniformMatrix4fv(testShader.uniformLocation("lightSpaceVO"), 1, GL_FALSE, value_ptr(lightVO));
     glUniform3fv(testShader.uniformLocation("lightPos"), 1, value_ptr(vec3(-2.0f, 4.0f, -1.0f)));
     glUniform3fv(testShader.uniformLocation("viewPos"), 1, value_ptr(mainCamera.position));
+    glUniform1f(testShader.uniformLocation("heightScale"), 0.1f);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, plane.tex);
     glUniform1i(testShader.uniformLocation("tex"), 0);
@@ -304,6 +315,9 @@ void MyGLWindow::paintGL()
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, normalTex);
     glUniform1i(testShader.uniformLocation("normalMap"), 2);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, displacementTex);
+    glUniform1i(testShader.uniformLocation("displacementMap"), 3);
     drawScene();
 
     update();

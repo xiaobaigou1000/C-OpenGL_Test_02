@@ -105,18 +105,19 @@ private:
         unsigned int tbnBuffer;
         constexpr static std::array<float, 48> planeVertices
         {
-            -25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-             25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f,
-            -25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+            -3.0f, -0.5f,  3.0f,  0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+             3.0f, -0.5f,  3.0f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
+            -3.0f, -0.5f, -3.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
          
-            -25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-             25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f,
-             25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f
+            -3.0f, -0.5f, -3.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+             3.0f, -0.5f,  3.0f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
+             3.0f, -0.5f, -3.0f,  0.0f, 1.0f, 0.0f,  1.0f,  0.0f
         };
     };
 
     TutorialScene plane;
     unsigned int normalTex;
+    unsigned int displacementTex;
 
     QOpenGLShaderProgram testShader;
     QOpenGLShaderProgram lightMapShader;
