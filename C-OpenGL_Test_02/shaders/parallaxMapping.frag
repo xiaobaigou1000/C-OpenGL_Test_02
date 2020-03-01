@@ -45,9 +45,25 @@ float shadowCaculation(vec4 lightSpaceFragPos)
 
 vec2 parallaxMapping(vec2 texCoords, vec3 viewDir)
 {
-    float height = texture(displacementMap, texCoords).r;
-    vec2 p = viewDir.xy * (height * heightScale);
-    return texCoords - p;
+    const float minLayers = 8;
+    const float maxLayers = 32;
+    float numLayers = mix(minLayers, maxLayers, dot(vec3(0.0, 0.0, 1.0), viewDir));
+    float layerDepth = 1.0 / numLayers;
+    float currentLayerDepth = 0.0;
+    vec2 P = viewDir.xy * heightScale;
+    vec2 deltaTexCoords = P / numLayers;
+
+    vec2 currentTexCoords = texCoords;
+    float currentDepthMapValue = texture(displacementMap, currentTexCoords).r;
+
+    while(currentLayerDepth < currentDepthMapValue)
+    {
+        currentTexCoords -= deltaTexCoords;
+        currentDepthMapValue = texture(displacementMap, currentTexCoords).r;
+        currentLayerDepth += layerDepth;
+    }
+
+    return currentTexCoords;
 }
 
 void main()

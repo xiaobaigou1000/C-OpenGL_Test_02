@@ -18,7 +18,7 @@ public:
     glm::mat4 projectionMat{ 1.0f };
     void resizeCamera(int w, int h);
 
-    float speed = 1.0f;
+    float speed = 2.0f;
     float mouseSensitivity = 5.0f;
 
     std::chrono::steady_clock::time_point lastFrame = std::chrono::steady_clock::now();
