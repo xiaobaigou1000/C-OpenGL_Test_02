@@ -29,6 +29,13 @@ MyGLWindow::MyGLWindow(QWidget* parent)
     setCursor(Qt::BlankCursor);
     setWindowFlag(Qt::FramelessWindowHint);
     setMouseTracking(true);
+
+    QSurfaceFormat format;
+    format.setColorSpace(QSurfaceFormat::DefaultColorSpace);
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setRenderableType(QSurfaceFormat::OpenGL);
+    format.setVersion(4, 5);
+    setFormat(format);
 }
 
 MyGLWindow::~MyGLWindow()
