@@ -340,7 +340,7 @@ void MyGLWindow::mouseMoveEvent(QMouseEvent* event)
     float xAxisMove = event->x() - width() / 2;
     float yAxisMove = event->y() - height() / 2;
     QCursor myCursor = cursor();
-    myCursor.setPos(mapToGlobal({ width() / 2, height() / 2 }));
+    myCursor.setPos(mapToGlobal(QPoint{ width() / 2, height() / 2 }));
     setCursor(myCursor);
     if (std::abs(xAxisMove) < 150.0f && std::abs(yAxisMove) < 150.0f)
     {
