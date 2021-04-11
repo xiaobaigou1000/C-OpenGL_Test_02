@@ -5,10 +5,18 @@
 #include<qdebug.h>
 #include<qopenglfunctions_4_5_core.h>
 #include<qopenglwidget.h>
-#include"SimpleTextureBox.h"
-#include"Simple3DBox.h"
+
+
+#define TINYGLTF_NOEXCEPTION
+#define TINYGLTF_NO_INCLUDE_JSON
+#define TINYGLTF_NO_INCLUDE_STB_IMAGE
+#define TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE
+#include<stb_image.h>
+#include<stb_image_write.h>
+#include<nlohmann/json.hpp>
+#include<tiny_gltf.h>
+
 #include"Camera.h"
-#include"Model.h"
 
 class MyGLWindow : public QOpenGLWidget, public QOpenGLFunctions_4_5_Core
 {

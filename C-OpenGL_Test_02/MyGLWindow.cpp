@@ -1,7 +1,18 @@
 #include "MyGLWindow.h"
 
+#define TINYGLTF_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include<stb_image.h>
+#include<stb_image_write.h>
+#include<nlohmann/json.hpp>
+#include<tiny_gltf.h>
+#include<gtc/matrix_transform.hpp>
+#include<gtc/type_ptr.hpp>
+
 #include<qimage.h>
 #include<QKeyEvent>
+#include<qapplication.h>
 #include<cmath>
 #include<memory>
 
@@ -25,7 +36,8 @@ using glm::ortho;
 MyGLWindow::MyGLWindow(QWidget* parent)
     : QOpenGLWidget(parent)
 {
-    resize(1920, 1080);
+    QSize size = QApplication::screens()[0]->size();
+    resize(size);
     setCursor(Qt::BlankCursor);
     setWindowFlag(Qt::FramelessWindowHint);
     setMouseTracking(true);
@@ -48,7 +60,7 @@ void MyGLWindow::initializeGL()
     std::default_random_engine dre(std::chrono::system_clock::now().time_since_epoch().count());
 
     QOpenGLFunctions_4_5_Core::initializeOpenGLFunctions();
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
@@ -56,6 +68,11 @@ void MyGLWindow::initializeGL()
     glFrontFace(GL_CCW);
 
     //code here
+    tinygltf::TinyGLTF loader;
+    std::string err;
+    std::string warning;
+    tinygltf::Model model;
+    loader.LoadASCIIFromFile(&model, &err, &warning, "models/Cube/Cube.gltf");
 }
 
 void MyGLWindow::paintGL()
